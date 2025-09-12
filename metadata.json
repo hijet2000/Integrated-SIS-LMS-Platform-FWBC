@@ -1,0 +1,7 @@
+{
+  "name": "Integrated SIS + LMS Platform FWBC",
+  "description": "A comprehensive, integrated School Information System (SIS) and Learning Management System (LMS) for modern educational institutions. Manage students, academics, fees, and attendance, alongside courses, assignments, and educational resources.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
