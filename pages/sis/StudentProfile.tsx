@@ -137,7 +137,7 @@ const DisciplineTab: React.FC<{ student: Student, canUpdate: boolean, canDelete:
     const [newRecord, setNewRecord] = useState({ date: new Date().toISOString().split('T')[0], incident: '', actionTaken: '' });
 
     const addMutation = useMutation({
-        // FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
+// FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
         mutationFn: (record: Omit<DisciplineRecord, 'id' | 'reportedBy'>) => addDisciplineRecord(student.id, { ...record, reportedBy: user!.id }),
         onSuccess: (updatedStudent) => {
             queryClient.setQueryData(['student', student.id], updatedStudent);

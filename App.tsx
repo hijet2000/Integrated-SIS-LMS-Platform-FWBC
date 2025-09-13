@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/hooks/useAuth';
@@ -76,6 +76,7 @@ const SearchPayments = React.lazy(() => import('@/pages/fees/SearchPayments'));
 
 const FinanceDashboard = React.lazy(() => import('@/pages/finance/Income'));
 const Income = React.lazy(() => import('@/pages/finance/Income'));
+// FIX: Added default export to pages/finance/Expenses.tsx to resolve lazy loading issue.
 const Expenses = React.lazy(() => import('@/pages/finance/Expenses'));
 
 const CommunicateDashboard = React.lazy(() => import('@/pages/communicate/NoticeBoard'));
@@ -107,7 +108,16 @@ const StaffCertificate = React.lazy(() => import('@/pages/certificate/StaffCerti
 const StudentIdCard = React.lazy(() => import('@/pages/certificate/StudentIdCard'));
 const StaffIdCard = React.lazy(() => import('@/pages/certificate/StaffIdCard'));
 const IdCardDesigner = React.lazy(() => import('@/pages/certificate/IdCardDesigner'));
+const VerifyCertificate = React.lazy(() => import('@/pages/VerifyCertificate'));
 
+const CmsEvents = React.lazy(() => import('@/pages/front-cms/Events'));
+const CmsGallery = React.lazy(() => import('@/pages/front-cms/Gallery'));
+const CmsNews = React.lazy(() => import('@/pages/front-cms/News'));
+const CmsBannerImages = React.lazy(() => import('@/pages/front-cms/BannerImages'));
+// FIX: Corrected import path for MediaManager component and added a default export to the file to resolve the module not found error.
+const CmsMediaManager = React.lazy(() => import('@/pages/front-cms/MediaManager'));
+// FIX: Corrected import path for PagesMenus component and added a default export to the file to resolve the module not found error.
+const CmsPagesMenus = React.lazy(() => import('@/pages/front-cms/PagesMenus'));
 
 const App: React.FC = () => {
   return (
@@ -116,121 +126,134 @@ const App: React.FC = () => {
         <AuthProvider>
           <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Spinner size="lg" /></div>}>
             <Routes>
+              {/* Public Verification Route */}
+              <Route path="/verify/:serialId" element={<VerifyCertificate />} />
+              
               <Route path="/" element={<Navigate to="/dashboard/site_123" replace />} />
 
-              <Route path="/dashboard/:siteId" element={<MainLayout><Dashboard /></MainLayout>} />
+              {/* Encapsulate all main app routes within the MainLayout */}
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard/:siteId" element={<Dashboard />} />
 
-              {/* SIS Routes */}
-              <Route path="/school/:siteId" element={<MainLayout><SisDashboard /></MainLayout>} />
-              <Route path="/school/:siteId/students" element={<MainLayout><Students /></MainLayout>} />
-              <Route path="/school/:siteId/students/:studentId" element={<MainLayout><StudentProfile /></MainLayout>} />
-              <Route path="/school/:siteId/fees" element={<MainLayout><Fees /></MainLayout>} />
-              <Route path="/school/:siteId/attendance" element={<MainLayout><Attendance /></MainLayout>} />
-              <Route path="/school/:siteId/attendance/records" element={<MainLayout><AttendanceRecords /></MainLayout>} />
-              <Route path="/school/:siteId/academics" element={<MainLayout><Academics /></MainLayout>} />
-              <Route path="/school/:siteId/grades" element={<MainLayout><Grades /></MainLayout>} />
-              <Route path="/school/:siteId/faculty" element={<MainLayout><Faculty /></MainLayout>} />
+                {/* SIS Routes */}
+                <Route path="/school/:siteId" element={<SisDashboard />} />
+                <Route path="/school/:siteId/students" element={<Students />} />
+                <Route path="/school/:siteId/students/:studentId" element={<StudentProfile />} />
+                <Route path="/school/:siteId/fees" element={<Fees />} />
+                <Route path="/school/:siteId/attendance" element={<Attendance />} />
+                <Route path="/school/:siteId/attendance/records" element={<AttendanceRecords />} />
+                <Route path="/school/:siteId/academics" element={<Academics />} />
+                <Route path="/school/:siteId/grades" element={<Grades />} />
+                <Route path="/school/:siteId/faculty" element={<Faculty />} />
 
-              {/* Student Management Routes */}
-              <Route path="/student/:siteId/admission" element={<MainLayout><StudentAdmission/></MainLayout>} />
-              <Route path="/student/:siteId/bulk-delete" element={<MainLayout><BulkDelete/></MainLayout>} />
-              <Route path="/student/:siteId/categories" element={<MainLayout><Categories/></MainLayout>} />
-              <Route path="/student/:siteId/disabled-students" element={<MainLayout><DisabledStudents/></MainLayout>} />
-              <Route path="/student/:siteId/multi-class-student" element={<MainLayout><MultiClassStudent/></MainLayout>} />
-              <Route path="/student/:siteId/online-admission" element={<MainLayout><OnlineAdmission/></MainLayout>} />
-              <Route path="/student/:siteId/batch-upload" element={<MainLayout><BatchStudentUpload/></MainLayout>} />
+                {/* Student Management Routes */}
+                <Route path="/student/:siteId/admission" element={<StudentAdmission/>} />
+                <Route path="/student/:siteId/bulk-delete" element={<BulkDelete/>} />
+                <Route path="/student/:siteId/categories" element={<Categories/>} />
+                <Route path="/student/:siteId/disabled-students" element={<DisabledStudents/>} />
+                <Route path="/student/:siteId/multi-class-student" element={<MultiClassStudent/>} />
+                <Route path="/student/:siteId/online-admission" element={<OnlineAdmission/>} />
+                <Route path="/student/:siteId/batch-upload" element={<BatchStudentUpload/>} />
 
-              {/* Attendance */}
-              <Route path="/attendance/:siteId/approve-leave" element={<MainLayout><ApproveLeave/></MainLayout>} />
+                {/* Attendance */}
+                <Route path="/attendance/:siteId/approve-leave" element={<ApproveLeave/>} />
 
-              {/* Academics Routes */}
-              <Route path="/academics/:siteId/timetable" element={<MainLayout><ClassTimetable/></MainLayout>} />
-              <Route path="/academics/:siteId/teachers-timetable" element={<MainLayout><TeachersTimetable/></MainLayout>} />
-              <Route path="/academics/:siteId/assign-teacher" element={<MainLayout><AssignTeacher/></MainLayout>} />
-              <Route path="/academics/:siteId/subjects" element={<MainLayout><Subjects/></MainLayout>} />
-              <Route path="/academics/:siteId/classes" element={<MainLayout><ClassesAndSections/></MainLayout>} />
-              <Route path="/academics/:siteId/subject-group" element={<MainLayout><SubjectGroup/></MainLayout>} />
-              <Route path="/academics/:siteId/promote" element={<MainLayout><PromoteStudents/></MainLayout>} />
+                {/* Academics Routes */}
+                <Route path="/academics/:siteId/timetable" element={<ClassTimetable/>} />
+                <Route path="/academics/:siteId/teachers-timetable" element={<TeachersTimetable/>} />
+                <Route path="/academics/:siteId/assign-teacher" element={<AssignTeacher/>} />
+                <Route path="/academics/:siteId/subjects" element={<Subjects/>} />
+                <Route path="/academics/:siteId/classes" element={<ClassesAndSections/>} />
+                <Route path="/academics/:siteId/subject-group" element={<SubjectGroup/>} />
+                <Route path="/academics/:siteId/promote" element={<PromoteStudents/>} />
 
-              {/* LMS Routes */}
-              <Route path="/education/:siteId" element={<MainLayout><LmsDashboard /></MainLayout>} />
-              <Route path="/education/:siteId/courses" element={<MainLayout><Courses /></MainLayout>} />
-              <Route path="/education/:siteId/courses/:courseId" element={<MainLayout><CourseDetail /></MainLayout>} />
-              <Route path="/education/:siteId/curriculum" element={<MainLayout><LmsCurriculum /></MainLayout>} />
-              <Route path="/education/:siteId/assignments" element={<MainLayout><Assignments /></MainLayout>} />
-              <Route path="/education/:siteId/quizzes" element={<MainLayout><Quizzes /></MainLayout>} />
-              <Route path="/education/:siteId/resources" element={<MainLayout><Resources /></MainLayout>} />
-              
-              {/* Exams Routes */}
-              <Route path="/exams/:siteId/group" element={<MainLayout><ExamsDashboard/></MainLayout>} />
-              <Route path="/exams/:siteId/schedule" element={<MainLayout><ExamSchedule/></MainLayout>} />
-              <Route path="/exams/:siteId/result" element={<MainLayout><ExamResult/></MainLayout>} />
-              <Route path="/exams/:siteId/design-admit-card" element={<MainLayout><DesignAdmitCard/></MainLayout>} />
-              <Route path="/exams/:siteId/print-admit-card" element={<MainLayout><PrintAdmitCard/></MainLayout>} />
-              <Route path="/exams/:siteId/design-marksheet" element={<MainLayout><DesignMarksheet/></MainLayout>} />
-              <Route path="/exams/:siteId/print-marksheet" element={<MainLayout><PrintMarksheet/></MainLayout>} />
-              <Route path="/exams/:siteId/grades" element={<MainLayout><MarksGrade/></MainLayout>} />
-              
-              {/* Online Exams */}
-              <Route path="/online-exams/:siteId/exam" element={<MainLayout><OnlineExamsDashboard/></MainLayout>} />
-              <Route path="/online-exams/:siteId/question-bank" element={<MainLayout><QuestionBank/></MainLayout>} />
-              <Route path="/online-exams/:siteId/result" element={<MainLayout><OnlineExamResult/></MainLayout>} />
-              
-              {/* Front Office */}
-              <Route path="/front-office/:siteId" element={<MainLayout><FrontOfficeDashboard/></MainLayout>} />
-              <Route path="/front-office/:siteId/admission-enquiry" element={<MainLayout><AdmissionEnquiry/></MainLayout>} />
-              <Route path="/front-office/:siteId/visitor-book" element={<MainLayout><VisitorBook/></MainLayout>} />
-              <Route path="/front-office/:siteId/phone-call-log" element={<MainLayout><PhoneCallLog/></MainLayout>} />
-              <Route path="/front-office/:siteId/postal-dispatch" element={<MainLayout><PostalDispatch/></MainLayout>} />
-              <Route path="/front-office/:siteId/postal-receive" element={<MainLayout><PostalReceive/></MainLayout>} />
-              <Route path="/front-office/:siteId/complain" element={<MainLayout><Complain/></MainLayout>} />
-              <Route path="/front-office/:siteId/setup" element={<MainLayout><FrontOfficeSetup/></MainLayout>} />
+                {/* LMS Routes */}
+                <Route path="/education/:siteId" element={<LmsDashboard />} />
+                <Route path="/education/:siteId/courses" element={<Courses />} />
+                <Route path="/education/:siteId/courses/:courseId" element={<CourseDetail />} />
+                <Route path="/education/:siteId/curriculum" element={<LmsCurriculum />} />
+                <Route path="/education/:siteId/assignments" element={<Assignments />} />
+                <Route path="/education/:siteId/quizzes" element={<Quizzes />} />
+                <Route path="/education/:siteId/resources" element={<Resources />} />
+                
+                {/* Exams Routes */}
+                <Route path="/exams/:siteId/group" element={<ExamsDashboard/>} />
+                <Route path="/exams/:siteId/schedule" element={<ExamSchedule/>} />
+                <Route path="/exams/:siteId/result" element={<ExamResult/>} />
+                <Route path="/exams/:siteId/design-admit-card" element={<DesignAdmitCard/>} />
+                <Route path="/exams/:siteId/print-admit-card" element={<PrintAdmitCard/>} />
+                <Route path="/exams/:siteId/design-marksheet" element={<DesignMarksheet/>} />
+                <Route path="/exams/:siteId/print-marksheet" element={<PrintMarksheet/>} />
+                <Route path="/exams/:siteId/grades" element={<MarksGrade/>} />
+                
+                {/* Online Exams */}
+                <Route path="/online-exams/:siteId/exam" element={<OnlineExamsDashboard/>} />
+                <Route path="/online-exams/:siteId/question-bank" element={<QuestionBank/>} />
+                <Route path="/online-exams/:siteId/result" element={<OnlineExamResult/>} />
+                
+                {/* Front Office */}
+                <Route path="/front-office/:siteId" element={<FrontOfficeDashboard/>} />
+                <Route path="/front-office/:siteId/admission-enquiry" element={<AdmissionEnquiry/>} />
+                <Route path="/front-office/:siteId/visitor-book" element={<VisitorBook/>} />
+                <Route path="/front-office/:siteId/phone-call-log" element={<PhoneCallLog/>} />
+                <Route path="/front-office/:siteId/postal-dispatch" element={<PostalDispatch/>} />
+                <Route path="/front-office/:siteId/postal-receive" element={<PostalReceive/>} />
+                <Route path="/front-office/:siteId/complain" element={<Complain/>} />
+                <Route path="/front-office/:siteId/setup" element={<FrontOfficeSetup/>} />
 
-              {/* Fees Collection */}
-              <Route path="/fees/:siteId/master" element={<MainLayout><FeesMaster/></MainLayout>} />
-              <Route path="/fees/:siteId/reminders" element={<MainLayout><FeesReminder/></MainLayout>} />
-              <Route path="/fees/:siteId/search" element={<MainLayout><SearchPayments/></MainLayout>} />
+                {/* Fees Collection */}
+                <Route path="/fees/:siteId/master" element={<FeesMaster/>} />
+                <Route path="/fees/:siteId/reminders" element={<FeesReminder/>} />
+                <Route path="/fees/:siteId/search" element={<SearchPayments/>} />
 
-              {/* Finance */}
-              <Route path="/finance/:siteId/income" element={<MainLayout><Income/></MainLayout>} />
-              <Route path="/finance/:siteId/expenses" element={<MainLayout><Expenses/></MainLayout>} />
-              
-              {/* Communicate */}
-              <Route path="/communicate/:siteId/notice-board" element={<MainLayout><NoticeBoard/></MainLayout>} />
-              <Route path="/communicate/:siteId/send-message" element={<MainLayout><SendMessage/></MainLayout>} />
-              <Route path="/communicate/:siteId/logs" element={<MainLayout><Logs/></MainLayout>} />
-              
-              {/* Downloads */}
-              <Route path="/downloads/:siteId/assignments" element={<MainLayout><AssignmentsDownload/></MainLayout>} />
-              <Route path="/downloads/:siteId/syllabus" element={<MainLayout><Syllabus/></MainLayout>} />
-              <Route path="/downloads/:siteId/other" element={<MainLayout><OtherDownloads/></MainLayout>} />
-              <Route path="/downloads/:siteId/upload" element={<MainLayout><UploadContent/></MainLayout>} />
-              
-              {/* Homework */}
-              <Route path="/homework/:siteId/add" element={<MainLayout><Homework/></MainLayout>} />
-              
-              {/* Library */}
-              <Route path="/library/:siteId/books" element={<MainLayout><BookList/></MainLayout>} />
-              <Route path="/library/:siteId/members" element={<MainLayout><AddMember/></MainLayout>} />
-              <Route path="/library/:siteId/issue-return" element={<MainLayout><IssueReturn/></MainLayout>} />
-              <Route path="/library/:siteId/digital" element={<MainLayout><DigitalLibrary/></MainLayout>} />
-              <Route path="/library/:siteId/viewer/:assetId" element={<MainLayout><DigitalViewer/></MainLayout>} />
-              <Route path="/library/:siteId/catchup" element={<MainLayout><CatchUpClasses/></MainLayout>} />
-              <Route path="/library/:siteId/catchup/:catchupId" element={<MainLayout><CatchUpViewer/></MainLayout>} />
+                {/* Finance */}
+                <Route path="/finance/:siteId/income" element={<Income/>} />
+                <Route path="/finance/:siteId/expenses" element={<Expenses/>} />
+                
+                {/* Communicate */}
+                <Route path="/communicate/:siteId/notice-board" element={<NoticeBoard/>} />
+                <Route path="/communicate/:siteId/send-message" element={<SendMessage/>} />
+                <Route path="/communicate/:siteId/logs" element={<Logs/>} />
+                
+                {/* Downloads */}
+                <Route path="/downloads/:siteId/assignments" element={<AssignmentsDownload/>} />
+                <Route path="/downloads/:siteId/syllabus" element={<Syllabus/>} />
+                <Route path="/downloads/:siteId/other" element={<OtherDownloads/>} />
+                <Route path="/downloads/:siteId/upload" element={<UploadContent/>} />
+                
+                {/* Homework */}
+                <Route path="/homework/:siteId/add" element={<Homework/>} />
+                
+                {/* Library */}
+                <Route path="/library/:siteId/books" element={<BookList/>} />
+                <Route path="/library/:siteId/members" element={<AddMember/>} />
+                <Route path="/library/:siteId/issue-return" element={<IssueReturn/>} />
+                <Route path="/library/:siteId/digital" element={<DigitalLibrary/>} />
+                <Route path="/library/:siteId/viewer/:assetId" element={<DigitalViewer/>} />
+                <Route path="/library/:siteId/catchup" element={<CatchUpClasses/>} />
+                <Route path="/library/:siteId/catchup/:catchupId" element={<CatchUpViewer/>} />
 
-              {/* Certificate Routes */}
-              <Route path="/certificate/:siteId/student-certificate" element={<MainLayout><StudentCertificate /></MainLayout>} />
-              <Route path="/certificate/:siteId/staff-certificate" element={<MainLayout><StaffCertificate /></MainLayout>} />
-              <Route path="/certificate/:siteId/student-id-card" element={<MainLayout><StudentIdCard /></MainLayout>} />
-              <Route path="/certificate/:siteId/staff-id-card" element={<MainLayout><StaffIdCard /></MainLayout>} />
-              <Route path="/certificate/:siteId/id-card-designer" element={<MainLayout><IdCardDesigner /></MainLayout>} />
+                {/* Certificate Routes */}
+                <Route path="/certificate/:siteId/student-certificate" element={<StudentCertificate />} />
+                <Route path="/certificate/:siteId/staff-certificate" element={<StaffCertificate />} />
+                <Route path="/certificate/:siteId/student-id-card" element={<StudentIdCard />} />
+                <Route path="/certificate/:siteId/staff-id-card" element={<StaffIdCard />} />
+                <Route path="/certificate/:siteId/id-card-designer" element={<IdCardDesigner />} />
 
-              {/* Settings */}
-              <Route path="/settings/:siteId/roles" element={<MainLayout><Roles/></MainLayout>} />
+                {/* Front CMS Routes */}
+                <Route path="/front-cms/:siteId/events" element={<CmsEvents />} />
+                <Route path="/front-cms/:siteId/gallery" element={<CmsGallery />} />
+                <Route path="/front-cms/:siteId/news" element={<CmsNews />} />
+                <Route path="/front-cms/:siteId/banner-images" element={<CmsBannerImages />} />
+                <Route path="/front-cms/:siteId/media-manager" element={<CmsMediaManager />} />
+                <Route path="/front-cms/:siteId/pages-menus" element={<CmsPagesMenus />} />
 
-
-              {/* 404 Not Found */}
-              <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
+                {/* Settings */}
+                <Route path="/settings/:siteId/roles" element={<Roles/>} />
+                
+                {/* 404 Not Found */}
+                <Route path="*" element={<NotFound />} />
+              </Route>
             </Routes>
           </Suspense>
         </AuthProvider>

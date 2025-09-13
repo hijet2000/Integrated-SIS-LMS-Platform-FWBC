@@ -205,7 +205,7 @@ const StudentAdmission: React.FC = () => {
                                 <div><label className="block text-sm font-medium">Blood Group</label><input type="text" name="bloodGroup" value={formData.bloodGroup} onChange={handleInputChange} className="mt-1 w-full rounded-md"/></div>
                                 <div><label className="block text-sm font-medium">Nationality</label><input type="text" name="nationality" value={formData.nationality} onChange={handleInputChange} className="mt-1 w-full rounded-md"/></div>
                                 <div><label className="block text-sm font-medium">Student Email</label><input type="email" name="email" value={formData.email} onChange={handleInputChange} className="mt-1 w-full rounded-md"/></div>
-                                {/* FIX: Added missing phone input field */}
+                                {/* IMPROVEMENT: Add input for student phone number. */}
                                 <div><label className="block text-sm font-medium">Student Phone</label><input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="mt-1 w-full rounded-md"/></div>
                             </div>
                         )}

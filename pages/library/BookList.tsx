@@ -171,4 +171,101 @@ const BookList: React.FC = () => {
     }, [books]);
     
     const filteredBooks = useMemo(() => {
-        if (!books
+        if (!books) return [];
+        return books
+            .filter(b => filters.status === 'all' || getBookStatus(b) === filters.status)
+            .filter(b => filters.language === 'all' || b.language === filters.language)
+            .filter(b => !filters.searchTerm || 
+                b.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+                b.author.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+                b.isbn.toLowerCase().includes(filters.searchTerm.toLowerCase())
+            );
+    }, [books, filters]);
+
+    if (!canRead) {
+        return <ErrorState title="Access Denied" message="You do not have permission to view the library." />;
+    }
+// FIX: The component was missing a return statement, which caused a type error. Added the main JSX structure for the page.
+    return (
+        <div>
+            <PageHeader
+                title="Book List"
+                subtitle="Browse and manage all books in the library."
+                actions={canCreate && <Button onClick={() => { setSelectedBook(null); setIsModalOpen(true); }}>Add Book</Button>}
+            />
+            
+            <Card className="mb-6">
+                <CardHeader><h3 className="font-semibold">Filter Books</h3></CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" placeholder="Search title, author, ISBN..." value={filters.searchTerm} onChange={e => setFilters(f => ({ ...f, searchTerm: e.target.value }))} className="w-full rounded-md"/>
+                    <select value={filters.language} onChange={e => setFilters(f => ({ ...f, language: e.target.value }))} className="w-full rounded-md">
+                        <option value="all">All Languages</option>
+                        {uniqueLanguages.map(lang => <option key={lang} value={lang}>{lang}</option>)}
+                    </select>
+                        <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value as 'all' | BookStatus }))} className="w-full rounded-md">
+                        <option value="all">All Statuses</option>
+                        <option value="Available">Available</option>
+                        <option value="All Issued">All Issued</option>
+                    </select>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardContent>
+                    {isLoading && <div className="flex justify-center p-8"><Spinner /></div>}
+                    {isError && <ErrorState title="Failed to load books" message={error.message} />}
+                    {!isLoading && !isError && (
+                        filteredBooks.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y">
+                                    <thead>
+                                        <tr>
+                                            <th className="p-2 text-left">Title</th>
+                                            <th className="p-2 text-left">Author</th>
+                                            <th className="p-2 text-left">ISBN</th>
+                                            <th className="p-2 text-left">Copies (Available)</th>
+                                            <th className="p-2 text-left">Status</th>
+                                            <th className="p-2 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y">
+                                        {filteredBooks.map(book => {
+                                            const status = getBookStatus(book);
+                                            return (
+                                            <tr key={book.id}>
+                                                <td className="p-2 font-semibold">{book.title}</td>
+                                                <td className="p-2">{book.author}</td>
+                                                <td className="p-2">{book.isbn}</td>
+                                                <td className="p-2">{book.quantity} ({book.available})</td>
+                                                <td className="p-2"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status]}`}>{status}</span></td>
+                                                <td className="p-2 text-right space-x-2">
+                                                    {canUpdate && <Button size="sm" variant="secondary" onClick={() => { setSelectedBook(book); setIsModalOpen(true); }}>Edit</Button>}
+                                                    {canDelete && <Button size="sm" variant="danger" onClick={() => handleDelete(book.id)}>Delete</Button>}
+                                                </td>
+                                            </tr>
+                                        )})}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : <EmptyState title="No Books Found" message="No books match your search. Try adding one." />
+                    )}
+                </CardContent>
+            </Card>
+            
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedBook ? 'Edit Book' : 'Add Book'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} isLoading={addMutation.isPending || updateMutation.isPending} className="ml-2">Save</Button>
+                    </>
+                }
+            >
+                <BookForm book={selectedBook} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} />
+            </Modal>
+        </div>
+    );
+};
+export default BookList;

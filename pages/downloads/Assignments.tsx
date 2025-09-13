@@ -9,8 +9,10 @@ import Card, { CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCan } from '@/hooks/useCan';
-import { assignmentApi, getSubjects, getStudents, assignmentSubmissionApi } from '@/services/sisApi';
-import type { Assignment, Subject, Student, AssignmentSubmission } from '@/types';
+// FIX: Use homeworkApi and getHomeworkSubmissions from sisApi.
+import { homeworkApi, getSubjects, getStudents, getHomeworkSubmissions } from '@/services/sisApi';
+// FIX: Use Homework and HomeworkSubmission types.
+import type { Homework, Subject, Student, HomeworkSubmission } from '@/types';
 
 const DownloadAssignments: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
@@ -19,10 +21,15 @@ const DownloadAssignments: React.FC = () => {
 
     const canRead = can('read', 'downloads.content', { kind: 'site', id: siteId! });
 
-    const { data: assignments = [], isLoading: l1 } = useQuery<Assignment[], Error>({ queryKey: ['assignments', siteId], queryFn: () => assignmentApi.get(siteId!) });
+    const { data: assignments = [], isLoading: l1 } = useQuery<Homework[], Error>({ queryKey: ['homework', siteId], queryFn: () => homeworkApi.get(siteId!) });
     const { data: subjects = [], isLoading: l2 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!) });
     const { data: students = [], isLoading: l3 } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!) });
-    const { data: submissions = [], isLoading: l4 } = useQuery<AssignmentSubmission[], Error>({ queryKey: ['submissions', siteId], queryFn: () => assignmentSubmissionApi.get(siteId!) });
+    // FIX: Fetch homework submissions.
+    const { data: submissions = [], isLoading: l4 } = useQuery<HomeworkSubmission[], Error>({ 
+        queryKey: ['homeworkSubmissions', siteId, user?.id], 
+        queryFn: () => Promise.all(assignments.map(a => getHomeworkSubmissions(a.id))).then(res => res.flat().filter(s => s.studentId === user?.id)),
+        enabled: !!user && assignments.length > 0,
+    });
     
     const student = useMemo(() => students.find(s => s.id === user?.id), [students, user]);
     const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
@@ -33,7 +40,7 @@ const DownloadAssignments: React.FC = () => {
     }, [assignments, student]);
 
     const mySubmissionsMap = useMemo(() => {
-        return new Map(submissions.filter(s => s.studentId === user?.id).map(s => [s.assignmentId, s]));
+        return new Map(submissions.filter(s => s.studentId === user?.id).map(s => [s.homeworkId, s]));
     }, [submissions, user]);
 
     const isLoading = l1 || l2 || l3 || l4;

@@ -98,7 +98,7 @@ const ApproveLeave: React.FC = () => {
     };
 
     const addMutation = useMutation({ 
-        // FIX: Corrected logical error by explicitly passing all properties to the API call.
+// FIX: Corrected logical error by explicitly passing all properties to the API call.
         mutationFn: (leave: Omit<StudentLeaveApplication, 'id'|'siteId'|'status'|'appliedOn'>) => 
             addStudentLeaveApplication({ 
                 ...leave,

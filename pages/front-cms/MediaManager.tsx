@@ -1,8 +1,8 @@
 import React from 'react';
 import Placeholder from '@/components/ui/Placeholder';
 
-const MediaManager: React.FC = () => {
+const CmsMediaManager: React.FC = () => {
   return <Placeholder title="Media Manager" />;
 };
 
-export default MediaManager;
+export default CmsMediaManager;

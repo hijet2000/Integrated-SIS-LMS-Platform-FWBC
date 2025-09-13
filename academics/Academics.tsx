@@ -7,8 +7,10 @@ import Spinner from '@/components/ui/Spinner';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent } from '@/components/ui/Card';
+// FIX: Corrected import path for sisApi
 import { getPrograms, getSubjects, getCurricula, getClassrooms, getTeachers } from '@/services/sisApi';
 import { useCan } from '@/hooks/useCan';
+// FIX: Corrected import path for domain types.
 import type { Program, Subject, Curriculum, Classroom, Teacher } from '@/types';
 
 type Tab = 'programs' | 'subjects' | 'curricula' | 'classrooms';

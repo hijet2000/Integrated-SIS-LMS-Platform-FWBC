@@ -67,7 +67,7 @@ const EvaluationModal: React.FC<{
     const handleSave = () => {
         const updates: Partial<HomeworkSubmission>[] = [];
         Object.entries(evaluationData).forEach(([submissionId, data]) => {
-            updates.push({ id: submissionId, ...data });
+            updates.push({ id: submissionId, ...data, status: 'Graded' });
         });
         if (updates.length > 0) {
             mutation.mutate(updates);
@@ -100,16 +100,16 @@ const EvaluationModal: React.FC<{
                         <tbody>
                         {students.map(student => {
                             const submission = studentSubmissionMap.get(student.id);
-                            // FIX: Default status to 'Assigned' if no submission exists
                             const status: SubmissionStatus = submission?.status ?? 'Assigned';
-                            if (!submission) return null; // Or render a row for non-submissions
-                            const currentEval = evaluationData[submission.id] || {};
+                            const currentEval = submission ? (evaluationData[submission.id] || {}) : {};
+                            
+                            // IMPROVEMENT: Display all students, disabling inputs for those who haven't submitted.
                             return (
                                 <tr key={student.id}>
                                     <td className="p-2">{student.firstName} {student.lastName}</td>
                                     <td className="p-2"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${submissionStatusColors[status]}`}>{status}</span></td>
-                                    <td className="p-2"><input type="number" className="w-20 rounded-md" value={currentEval.marks ?? submission.marks ?? ''} onChange={e => handleEvalChange(submission.id, 'marks', parseInt(e.target.value))}/></td>
-                                    <td className="p-2"><input type="text" className="w-full rounded-md" value={currentEval.remarks ?? submission.remarks ?? ''} onChange={e => handleEvalChange(submission.id, 'remarks', e.target.value)}/></td>
+                                    <td className="p-2"><input type="number" className="w-20 rounded-md disabled:bg-gray-100" value={currentEval.marks ?? submission?.marks ?? ''} onChange={e => submission && handleEvalChange(submission.id, 'marks', parseInt(e.target.value))} disabled={!submission}/></td>
+                                    <td className="p-2"><input type="text" className="w-full rounded-md disabled:bg-gray-100" value={currentEval.remarks ?? submission?.remarks ?? ''} onChange={e => submission && handleEvalChange(submission.id, 'remarks', e.target.value)} disabled={!submission} /></td>
                                 </tr>
                             );
                         })}

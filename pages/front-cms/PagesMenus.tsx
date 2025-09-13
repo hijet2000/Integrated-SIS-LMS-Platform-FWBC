@@ -1,8 +1,8 @@
 import React from 'react';
 import Placeholder from '@/components/ui/Placeholder';
 
-const PagesMenus: React.FC = () => {
+const CmsPagesMenus: React.FC = () => {
   return <Placeholder title="Pages & Menus" />;
 };
 
-export default PagesMenus;
+export default CmsPagesMenus;

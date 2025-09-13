@@ -76,7 +76,8 @@ const IdCardDesigner: React.FC = () => {
         showValidity: true,
     });
 
-    const canManage = can('update', 'certificate.id-card-designer', { kind: 'site', id: siteId! });
+    // FIX: Corrected invalid resource name 'certificate.id-card-designer' to 'certificate.templates'.
+    const canManage = can('update', 'certificate.templates', { kind: 'site', id: siteId! });
 
     const { data: templates = [], isLoading, isError } = useQuery<IdCardTemplate[], Error>({
         queryKey: ['idCardTemplates', siteId],

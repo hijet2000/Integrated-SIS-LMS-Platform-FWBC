@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -43,12 +42,13 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
         <div>
             {can('create', 'fees.master') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Type</Button>}
             <table className="min-w-full divide-y">
-                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Code</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
+                 {/* FIX: Removed 'Code' column as the property does not exist on FeeType. */}
+                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y">
                     {items?.map(item => (
                         <tr key={item.id}>
                             <td className="px-6 py-4">{item.name}</td>
-                            <td className="px-6 py-4">{item.code}</td>
+                            
                             <td className="px-6 py-4 text-right space-x-2">
                                 {can('update', 'fees.master') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
                                 {can('delete', 'fees.master') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
@@ -67,11 +67,10 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
 };
 const FeeTypeForm: React.FC<{item?: FeeType | null, onSave: (data: any) => void, onCancel: () => void}> = ({ item, onSave, onCancel }) => {
     const [name, setName] = useState(item?.name || '');
-    const [code, setCode] = useState(item?.code || '');
+    // FIX: Removed 'code' state as it does not exist on FeeType.
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name, code }); }} className="space-y-4">
+        <form onSubmit={e => { e.preventDefault(); onSave({ name }); }} className="space-y-4">
             <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
-            <div><label>Code</label><input value={code} onChange={e => setCode(e.target.value)} className="w-full rounded-md"/></div>
             <div className="hidden"><button type="submit">Save</button></div>
         </form>
     );

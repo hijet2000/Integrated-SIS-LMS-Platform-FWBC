@@ -45,7 +45,8 @@ export const createMockApi = <T extends { id: string; siteId: string }>(
         data[index] = { ...data[index], ...updates };
         return mockApi(data[index]);
       }
-      return Promise.reject(new Error(`${resourceName} not found`));
+      // IMPROVEMENT: Use mockApiError for consistent error handling.
+      return mockApiError(404, `${resourceName} not found`);
     },
     delete: (id: string): Promise<{ success: boolean }> => {
       const index = data.findIndex(item => item.id === id);
@@ -53,7 +54,8 @@ export const createMockApi = <T extends { id: string; siteId: string }>(
         data.splice(index, 1);
         return mockApi({ success: true });
       }
-      return Promise.reject(new Error(`${resourceName} not found`));
+       // IMPROVEMENT: Use mockApiError for consistent error handling.
+      return mockApiError(404, `${resourceName} not found`);
     },
   };
 };
