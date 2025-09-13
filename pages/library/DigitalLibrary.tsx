@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
@@ -79,9 +78,9 @@ const ManagementView: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAsset, setSelectedAsset] = useState<DigitalAsset | null>(null);
 
-    const canCreate = can('create', 'library.digital', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'library.digital', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'library.digital', { kind: 'site', id: siteId! });
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: assets = [], isLoading: l1 } = useQuery<DigitalAsset[], Error>({ queryKey: ['digitalAssets', siteId], queryFn: () => digitalAssetApi.get(siteId!) });
     const { data: classrooms = [], isLoading: l2 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
@@ -167,9 +166,9 @@ const AssetForm: React.FC<{ asset?: DigitalAsset|null, onSave: (data:any)=>void,
 const DigitalLibrary: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
-    const canManage = can('create', 'library.digital', { kind: 'site', id: siteId! });
+    const canManage = can('school:write');
 
-    if (!can('read', 'library.digital', { kind: 'site', id: siteId! })) {
+    if (!can('school:read')) {
         return <ErrorState title="Access Denied" message="You do not have permission to view the digital library." />;
     }
 

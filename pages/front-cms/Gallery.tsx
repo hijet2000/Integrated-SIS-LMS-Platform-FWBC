@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -23,7 +24,8 @@ const Gallery: React.FC = () => {
     const [isPhotoManagerOpen, setPhotoManagerOpen] = useState(false);
     const [selectedAlbum, setSelectedAlbum] = useState<CmsAlbum | null>(null);
     
-    const canManage = can('update', 'front-cms.gallery', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
+    const canManage = can('school:write');
 
     const { data: albums = [], isLoading: l1 } = useQuery<CmsAlbum[], Error>({ queryKey: ['cmsAlbums', siteId], queryFn: () => cmsAlbumApi.get(siteId!) });
     const { data: photos = [], isLoading: l2 } = useQuery<CmsPhoto[], Error>({ queryKey: ['cmsPhotos', siteId], queryFn: () => cmsPhotoApi.get(siteId!) });

@@ -62,10 +62,11 @@ const ExamGroupPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<ExamGroup | null>(null);
 
-    const canRead = can('read', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'exams.schedule', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
     
     // Data query
     const { data: examGroups, isLoading, isError, error } = useQuery<ExamGroup[], Error>({

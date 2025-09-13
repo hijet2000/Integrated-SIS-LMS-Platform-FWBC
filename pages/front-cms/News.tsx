@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -75,7 +76,8 @@ const CmsNews: React.FC = () => {
     const [selectedArticle, setSelectedArticle] = useState<CmsNews | null>(null);
     const [statusFilter, setStatusFilter] = useState<CmsNewsStatus | 'all'>('all');
 
-    const canManage = can('update', 'front-cms.news', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
+    const canManage = can('school:write');
 
     const { data: articles = [], isLoading: l1 } = useQuery<CmsNews[], Error>({ queryKey: ['cmsNews', siteId], queryFn: () => cmsNewsApi.get(siteId!) });
     const { data: teachers = [] } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!) });

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -58,7 +59,8 @@ const RoomsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<HostelRoom | null>(null);
 
-    const canManage = can('update', 'hostel', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
+    const canManage = can('school:write');
 
     const { data: items = [], isLoading: l1 } = useQuery<HostelRoom[], Error>({ queryKey: ['hostelRooms', siteId], queryFn: () => hostelRoomApi.get(siteId!) });
     const { data: hostels = [], isLoading: l2 } = useQuery<Hostel[], Error>({ queryKey: ['hostels', siteId], queryFn: () => hostelApi.get(siteId!) });

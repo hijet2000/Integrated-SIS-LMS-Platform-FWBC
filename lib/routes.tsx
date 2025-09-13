@@ -1,139 +1,293 @@
-
 import React from 'react';
-import { SCHOOL_SIDEBAR } from '@/constants/sidebar';
-import type { NavItem } from '@/types/navigation';
-
 import MainLayout from '@/components/layout/MainLayout';
 import RequireScope from '@/auth/RequireScope';
-import Placeholder from '@/components/ui/Placeholder';
+import type { Scope } from '@/types/navigation';
 
-// --- Lazy Load ALL components ---
-// This map connects a path to its component.
-const componentMap: { [key: string]: React.LazyExoticComponent<React.FC<any>> } = {
-    '/school/:siteId/dashboard': React.lazy(() => import('@/pages/sis/SisDashboard')),
-    '/school/:siteId/front-office/admission-enquiry': React.lazy(() => import('@/pages/frontoffice/AdmissionEnquiry')),
-    '/school/:siteId/front-office/visitor-book': React.lazy(() => import('@/pages/frontoffice/VisitorBook')),
-    '/school/:siteId/front-office/phone-calls': React.lazy(() => import('@/pages/frontoffice/PhoneCallLog')),
-    '/school/:siteId/front-office/postal-dispatch': React.lazy(() => import('@/pages/frontoffice/PostalDispatch')),
-    '/school/:siteId/front-office/postal-receive': React.lazy(() => import('@/pages/frontoffice/PostalReceive')),
-    '/school/:siteId/front-office/complaints': React.lazy(() => import('@/pages/frontoffice/Complain')),
-    '/school/:siteId/front-office/setup': React.lazy(() => import('@/pages/frontoffice/Setup')),
-    '/school/:siteId/students': React.lazy(() => import('@/pages/sis/Students')),
-    '/school/:siteId/students/admission': React.lazy(() => import('@/pages/student/StudentAdmission')),
-    '/school/:siteId/students/online-admission': React.lazy(() => import('@/pages/student/OnlineAdmission')),
-    '/school/:siteId/students/disabled': React.lazy(() => import('@/pages/student/DisabledStudents')),
-    '/school/:siteId/students/multi-class': React.lazy(() => import('@/pages/student/MultiClassStudent')),
-    '/school/:siteId/students/bulk-delete': React.lazy(() => import('@/pages/student/BulkDelete')),
-    '/school/:siteId/students/classifications': React.lazy(() => import('@/pages/student/Categories')),
-    '/school/:siteId/finance/collect': React.lazy(() => import('@/pages/sis/Fees')),
-    '/school/:siteId/finance/search': React.lazy(() => import('@/pages/fees/SearchPayments')),
-    '/school/:siteId/finance/fees-config': React.lazy(() => import('@/pages/fees/FeesMaster')),
-    '/school/:siteId/finance/discounts': React.lazy(() => import('@/pages/fees/Discounts')),
-    '/school/:siteId/finance/reminders': React.lazy(() => import('@/pages/fees/FeesReminder')),
-    '/school/:siteId/finance/income': React.lazy(() => import('@/pages/finance/Income')),
-    '/school/:siteId/finance/expenses': React.lazy(() => import('@/pages/finance/Expenses')),
-    '/school/:siteId/attendance/mark': React.lazy(() => import('@/pages/sis/Attendance')),
-    '/school/:siteId/attendance/by-date': React.lazy(() => import('@/pages/sis/Attendance')),
-    '/school/:siteId/attendance/records': React.lazy(() => import('@/pages/sis/AttendanceRecords')),
-    '/school/:siteId/attendance/leave-approval': React.lazy(() => import('@/pages/attendance/ApproveLeave')),
-    '/school/:siteId/exams/schedule': React.lazy(() => import('@/pages/exams/ExamSchedule')),
-    '/school/:siteId/exams/results': React.lazy(() => import('@/pages/exams/ExamResult')),
-    '/school/:siteId/exams/admit-cards': React.lazy(() => import('@/pages/exams/DesignAdmitCard')),
-    '/school/:siteId/exams/marksheets': React.lazy(() => import('@/pages/exams/DesignMarksheet')),
-    '/school/:siteId/exams/grades': React.lazy(() => import('@/pages/exams/MarksGrade')),
-    '/school/:siteId/online-exams': React.lazy(() => import('@/pages/online-exams/OnlineExam')),
-    '/school/:siteId/online-exams/questions': React.lazy(() => import('@/pages/online-exams/QuestionBank')),
-    '/school/:siteId/online-exams/results': React.lazy(() => import('@/pages/online-exams/OnlineExamResult')),
-    '/school/:siteId/academics/class-timetable': React.lazy(() => import('@/pages/academics/ClassTimetable')),
-    '/school/:siteId/academics/teacher-timetable': React.lazy(() => import('@/pages/academics/TeachersTimetable')),
-    '/school/:siteId/academics/assign-class-teacher': React.lazy(() => import('@/pages/academics/AssignTeacher')),
-    '/school/:siteId/academics/promotions': React.lazy(() => import('@/pages/academics/PromoteStudents')),
-    '/school/:siteId/academics/subjects': React.lazy(() => import('@/pages/academics/Subjects')),
-    '/school/:siteId/academics/classes': React.lazy(() => import('@/pages/academics/ClassesAndSections')),
-    '/school/:siteId/homework': React.lazy(() => import('@/pages/homework/AddHomework')),
-    '/school/:siteId/library/books': React.lazy(() => import('@/pages/library/BookList')),
-    '/school/:siteId/library/circulation': React.lazy(() => import('@/pages/library/IssueReturn')),
-    '/school/:siteId/library/members': React.lazy(() => import('@/pages/library/AddMember')),
-    '/school/:siteId/library/digital': React.lazy(() => import('@/pages/library/DigitalLibrary')),
-    '/school/:siteId/library/catchup': React.lazy(() => import('@/pages/library/CatchUpClasses')),
-    '/school/:siteId/downloads/content': React.lazy(() => import('@/pages/downloads/UploadContent')),
-    '/school/:siteId/downloads/assignments': React.lazy(() => import('@/pages/downloads/Assignments')),
-    '/school/:siteId/downloads/study-material': React.lazy(() => import('@/pages/downloads/StudyMaterial')),
-    '/school/:siteId/downloads/syllabus': React.lazy(() => import('@/pages/downloads/Syllabus')),
-    '/school/:siteId/downloads/others': React.lazy(() => import('@/pages/downloads/OtherDownloads')),
-    '/school/:siteId/comms/notices': React.lazy(() => import('@/pages/communicate/NoticeBoard')),
-    '/school/:siteId/comms/send': React.lazy(() => import('@/pages/communicate/SendMessage')),
-    '/school/:siteId/comms/logs': React.lazy(() => import('@/pages/communicate/Logs')),
-    '/school/:siteId/live/zoom': React.lazy(() => import('@/pages/live-classes/Zoom')),
-    '/school/:siteId/live/gmeet': React.lazy(() => import('@/pages/live-classes/Gmeet')),
-    '/school/:siteId/live/classroom': React.lazy(() => import('@/pages/live-classes/SelfHosted')),
-    '/school/:siteId/inventory/issue': React.lazy(() => import('@/pages/inventory/IssueItem')),
-    '/school/:siteId/inventory/stock': React.lazy(() => import('@/pages/inventory/AddStock')),
-    '/school/:siteId/inventory/config': React.lazy(() => import('@/pages/inventory/Setup')),
-    '/school/:siteId/transport/routes': React.lazy(() => import('@/pages/transport/Routes')),
-    '/school/:siteId/transport/vehicles': React.lazy(() => import('@/pages/transport/Vehicles')),
-    '/school/:siteId/transport/assign': React.lazy(() => import('@/pages/transport/AssignVehicle')),
-    '/school/:siteId/transport/requests': React.lazy(() => import('@/pages/transport/VehicleRequests')),
-    '/school/:siteId/hostel/blocks': React.lazy(() => import('@/pages/hostel/Hostels')),
-    '/school/:siteId/hostel/room-types': React.lazy(() => import('@/pages/hostel/RoomType')),
-    '/school/:siteId/hostel/rooms': React.lazy(() => import('@/pages/hostel/Rooms')),
-    '/school/:siteId/certificates': React.lazy(() => import('@/pages/certificate/StudentCertificate')),
-    '/school/:siteId/certificates/batch': React.lazy(() => import('@/pages/certificate/PrintAdmitCard')),
-    '/school/:siteId/certificates/id-cards': React.lazy(() => import('@/pages/certificate/StudentIdCard')),
-    '/school/:siteId/alumni': React.lazy(() => import('@/pages/alumni/ManageAlumni')),
-    '/school/:siteId/alumni/events': React.lazy(() => import('@/pages/alumni/Events')),
-    '/school/:siteId/cms/events': React.lazy(() => import('@/pages/front-cms/Events')),
-    '/school/:siteId/cms/gallery': React.lazy(() => import('@/pages/front-cms/Gallery')),
-    '/school/:siteId/cms/news': React.lazy(() => import('@/pages/front-cms/News')),
-    '/school/:siteId/cms/media': React.lazy(() => import('@/pages/front-cms/MediaManager')),
-    '/school/:siteId/cms/pages': React.lazy(() => import('@/pages/front-cms/PagesMenus')),
-    '/school/:siteId/cms/menus': React.lazy(() => import('@/pages/front-cms/PagesMenus')),
-    '/school/:siteId/cms/banners': React.lazy(() => import('@/pages/front-cms/BannerImages')),
-    '/school/:siteId/reports/students': React.lazy(() => import('@/pages/reports/StudentReport')),
-    '/school/:siteId/reports/finance': React.lazy(() => import('@/pages/reports/FinanceReport')),
-    '/school/:siteId/reports/attendance': React.lazy(() => import('@/pages/sis/AttendanceRecords')),
-    '/school/:siteId/reports/exams': React.lazy(() => import('@/pages/exams/ExamResult')),
-    '/school/:siteId/reports/user-log': React.lazy(() => import('@/pages/reports/UserLog')),
-    '/school/:siteId/reports/audit': React.lazy(() => import('@/pages/reports/AuditTrail')),
-    '/school/:siteId/settings/general': React.lazy(() => import('@/pages/settings/General')),
-    '/school/:siteId/settings/rbac': React.lazy(() => import('@/pages/settings/Roles')),
-};
+// Dashboards
+const SisDashboard = React.lazy(() => import('@/pages/sis/SisDashboard'));
+const LmsDashboard = React.lazy(() => import('@/pages/lms/LmsDashboard'));
+const FrontOfficeDashboard = React.lazy(() => import('@/pages/frontoffice/FrontOfficeDashboard'));
 
-// --- Route Generation ---
+// SIS Modules
+const Students = React.lazy(() => import('@/pages/sis/Students'));
+const StudentProfile = React.lazy(() => import('@/pages/sis/StudentProfile'));
+const Fees = React.lazy(() => import('@/pages/sis/Fees'));
+const Faculty = React.lazy(() => import('@/pages/sis/Faculty'));
+const Grades = React.lazy(() => import('@/pages/sis/Grades'));
+const Attendance = React.lazy(() => import('@/pages/sis/Attendance'));
+const AttendanceRecords = React.lazy(() => import('@/pages/sis/AttendanceRecords'));
+const Academics = React.lazy(() => import('@/pages/academics/Academics'));
+const ClassesAndSections = React.lazy(() => import('@/pages/academics/ClassesAndSections'));
+const Subjects = React.lazy(() => import('@/pages/academics/Subjects'));
+const SubjectGroup = React.lazy(() => import('@/pages/academics/SubjectGroup'));
+const AssignTeacher = React.lazy(() => import('@/pages/academics/AssignTeacher'));
+const PromoteStudents = React.lazy(() => import('@/pages/academics/PromoteStudents'));
+const ClassTimetable = React.lazy(() => import('@/pages/academics/ClassTimetable'));
+const TeachersTimetable = React.lazy(() => import('@/pages/academics/TeachersTimetable'));
 
-// Helper to flatten the nested sidebar structure into a list of routes
-function flattenSidebarItems(items: NavItem[]): NavItem[] {
-  const flatList: NavItem[] = [];
-  
-  function recurse(item: NavItem) {
-    if (item.path) {
-      flatList.push(item);
-    }
-    if (item.children) {
-      item.children.forEach(recurse);
-    }
-  }
+// Student Management
+const StudentAdmission = React.lazy(() => import('@/pages/student/StudentAdmission'));
+const DisabledStudents = React.lazy(() => import('@/pages/student/DisabledStudents'));
+const BulkDelete = React.lazy(() => import('@/pages/student/BulkDelete'));
+const Categories = React.lazy(() => import('@/pages/student/Categories'));
+const OnlineAdmission = React.lazy(() => import('@/pages/student/OnlineAdmission'));
+const MultiClassStudent = React.lazy(() => import('@/pages/student/MultiClassStudent'));
+const BatchStudentUpload = React.lazy(() => import('@/pages/student/BatchStudentUpload'));
 
-  items.forEach(recurse);
-  return flatList;
+// Attendance
+const ApproveLeave = React.lazy(() => import('@/pages/attendance/ApproveLeave'));
+
+// Examinations
+const ExamGroup = React.lazy(() => import('@/pages/exams/ExamGroup'));
+const ExamSchedule = React.lazy(() => import('@/pages/exams/ExamSchedule'));
+const ExamResult = React.lazy(() => import('@/pages/exams/ExamResult'));
+const MarksGrade = React.lazy(() => import('@/pages/exams/MarksGrade'));
+const DesignAdmitCard = React.lazy(() => import('@/pages/exams/DesignAdmitCard'));
+const PrintAdmitCard = React.lazy(() => import('@/pages/exams/PrintAdmitCard'));
+const DesignMarksheet = React.lazy(() => import('@/pages/exams/DesignMarksheet'));
+const PrintMarksheet = React.lazy(() => import('@/pages/exams/PrintMarksheet'));
+
+// Online Exams
+const OnlineExam = React.lazy(() => import('@/pages/online-exams/OnlineExam'));
+const QuestionBank = React.lazy(() => import('@/pages/online-exams/QuestionBank'));
+const OnlineExamResult = React.lazy(() => import('@/pages/online-exams/OnlineExamResult'));
+
+// Fees
+const SearchPayments = React.lazy(() => import('@/pages/fees/SearchPayments'));
+const FeesMaster = React.lazy(() => import('@/pages/fees/FeesMaster'));
+const FeesReminder = React.lazy(() => import('@/pages/fees/FeesReminder'));
+const Discounts = React.lazy(() => import('@/pages/fees/Discounts'));
+
+// Finance
+const Income = React.lazy(() => import('@/pages/finance/Income'));
+const Expenses = React.lazy(() => import('@/pages/finance/Expenses'));
+
+// Homework
+const AddHomework = React.lazy(() => import('@/pages/homework/AddHomework'));
+
+// Communicate
+const NoticeBoard = React.lazy(() => import('@/pages/communicate/NoticeBoard'));
+const SendMessage = React.lazy(() => import('@/pages/communicate/SendMessage'));
+const Logs = React.lazy(() => import('@/pages/communicate/Logs'));
+
+// Library
+const BookList = React.lazy(() => import('@/pages/library/BookList'));
+const IssueReturn = React.lazy(() => import('@/pages/library/IssueReturn'));
+const AddMember = React.lazy(() => import('@/pages/library/AddMember'));
+const DigitalLibrary = React.lazy(() => import('@/pages/library/DigitalLibrary'));
+const DigitalViewer = React.lazy(() => import('@/pages/library/DigitalViewer'));
+const CatchUpClasses = React.lazy(() => import('@/pages/library/CatchUpClasses'));
+const CatchUpViewer = React.lazy(() => import('@/pages/library/CatchUpViewer'));
+
+// Inventory
+const AddStock = React.lazy(() => import('@/pages/inventory/AddStock'));
+const IssueItem = React.lazy(() => import('@/pages/inventory/IssueItem'));
+const InventorySetup = React.lazy(() => import('@/pages/inventory/Setup'));
+    
+// Transport
+const Routes = React.lazy(() => import('@/pages/transport/Routes'));
+const Vehicles = React.lazy(() => import('@/pages/transport/Vehicles'));
+const AssignVehicle = React.lazy(() => import('@/pages/transport/AssignVehicle'));
+const VehicleRequests = React.lazy(() => import('@/pages/transport/VehicleRequests'));
+
+// Hostel
+const Hostels = React.lazy(() => import('@/pages/hostel/Hostels'));
+const RoomType = React.lazy(() => import('@/pages/hostel/RoomType'));
+const HostelRooms = React.lazy(() => import('@/pages/hostel/Rooms'));
+const AllocateRoom = React.lazy(() => import('@/pages/hostel/AllocateRoom'));
+
+// Certificate
+const StudentCertificate = React.lazy(() => import('@/pages/certificate/StudentCertificate'));
+const GenerateCertificate = React.lazy(() => import('@/pages/certificate/GenerateCertificate'));
+const StudentIdCard = React.lazy(() => import('@/pages/certificate/StudentIdCard'));
+const StaffIdCard = React.lazy(() => import('@/pages/certificate/StaffIdCard'));
+const IdCardDesigner = React.lazy(() => import('@/pages/certificate/IdCardDesigner'));
+
+// Alumni
+const ManageAlumni = React.lazy(() => import('@/pages/alumni/ManageAlumni'));
+const AlumniEvents = React.lazy(() => import('@/pages/alumni/Events'));
+
+// Reports
+const StudentReport = React.lazy(() => import('@/pages/reports/StudentReport'));
+const FinanceReport = React.lazy(() => import('@/pages/reports/FinanceReport'));
+const UserLog = React.lazy(() => import('@/pages/reports/UserLog'));
+const AuditTrail = React.lazy(() => import('@/pages/reports/AuditTrail'));
+
+// Front Office
+const AdmissionEnquiry = React.lazy(() => import('@/pages/frontoffice/AdmissionEnquiry'));
+const VisitorBook = React.lazy(() => import('@/pages/frontoffice/VisitorBook'));
+const PhoneCallLog = React.lazy(() => import('@/pages/frontoffice/PhoneCallLog'));
+const PostalDispatch = React.lazy(() => import('@/pages/frontoffice/PostalDispatch'));
+const PostalReceive = React.lazy(() => import('@/pages/frontoffice/PostalReceive'));
+const Complain = React.lazy(() => import('@/pages/frontoffice/Complain'));
+const FrontOfficeSetup = React.lazy(() => import('@/pages/frontoffice/Setup'));
+
+// LMS Modules
+const Courses = React.lazy(() => import('@/pages/lms/Courses'));
+const CourseDetail = React.lazy(() => import('@/pages/lms/CourseDetail'));
+const Curriculum = React.lazy(() => import('@/pages/lms/Curriculum'));
+const Assignments = React.lazy(() => import('@/pages/lms/Assignments'));
+const Quizzes = React.lazy(() => import('@/pages/lms/Quizzes'));
+const Resources = React.lazy(() => import('@/pages/lms/Resources'));
+
+// Settings
+const GeneralSettings = React.lazy(() => import('@/pages/settings/General'));
+const Integrations = React.lazy(() => import('@/pages/settings/Integrations'));
+const PrintSettings = React.lazy(() => import('@/pages/settings/Print'));
+const CmsSettings = React.lazy(() => import('@/pages/settings/Cms'));
+const Roles = React.lazy(() => import('@/pages/settings/Roles'));
+const Backup = React.lazy(() => import('@/pages/settings/Backup'));
+const UsersModules = React.lazy(() => import('@/pages/settings/UsersModules'));
+const Customization = React.lazy(() => import('@/pages/settings/Customization'));
+const SystemFields = React.lazy(() => import('@/pages/settings/SystemFields'));
+const SystemUpdate = React.lazy(() => import('@/pages/settings/SystemUpdate'));
+
+
+interface AppRoute {
+    path: string;
+    element: React.ReactNode;
+    scope: Scope;
 }
 
-const allNavItems = flattenSidebarItems(SCHOOL_SIDEBAR);
+const routes: AppRoute[] = [
+    // School (SIS) routes
+    { path: '/school/:siteId', element: <SisDashboard />, scope: 'school:read' },
+    { path: '/school/:siteId/students', element: <Students />, scope: 'school:read' },
+    { path: '/school/:siteId/students/:studentId', element: <StudentProfile />, scope: 'school:read' },
+    { path: '/school/:siteId/fees', element: <Fees />, scope: 'school:read' },
+    { path: '/school/:siteId/faculty', element: <Faculty />, scope: 'school:read' },
+    { path: '/school/:siteId/grades', element: <Grades />, scope: 'school:read' },
+    { path: '/school/:siteId/attendance', element: <Attendance />, scope: 'school:read' },
+    { path: '/school/:siteId/attendance/records', element: <AttendanceRecords />, scope: 'school:read' },
+    { path: '/school/:siteId/academics/classes', element: <ClassesAndSections />, scope: 'school:read' },
+    { path: '/school/:siteId/academics/subjects', element: <Subjects />, scope: 'school:read' },
+    { path: '/school/:siteId/academics/subject-group', element: <SubjectGroup />, scope: 'school:write' },
+    { path: '/school/:siteId/academics/assign-teacher', element: <AssignTeacher />, scope: 'school:write' },
+    { path: '/school/:siteId/academics/promote-students', element: <PromoteStudents />, scope: 'school:write' },
+    { path: '/school/:siteId/academics/class-timetable', element: <ClassTimetable />, scope: 'school:read' },
+    { path: '/school/:siteId/academics/teachers-timetable', element: <TeachersTimetable />, scope: 'school:read' },
 
-export const schoolRoutes = allNavItems
-  .filter(item => item.path)
-  .map(route => {
-    const Component = componentMap[route.path!] ?? (({title}) => <Placeholder title={title} />);
-    const props = !componentMap[route.path!] ? { title: route.label } : {};
-    
-    let element = <Component {...props} />;
-    
-    if (route.scope) {
-        element = <RequireScope scope={route.scope}>{element}</RequireScope>;
-    }
+    // Student Management Routes
+    { path: '/school/:siteId/student-admission', element: <StudentAdmission />, scope: 'school:write' },
+    { path: '/school/:siteId/disabled-students', element: <DisabledStudents />, scope: 'school:read' },
+    { path: '/school/:siteId/bulk-delete', element: <BulkDelete />, scope: 'school:write' },
+    { path: '/school/:siteId/student-categories', element: <Categories />, scope: 'school:read' },
+    { path: '/school/:siteId/online-admission', element: <OnlineAdmission />, scope: 'school:read' },
+    { path: '/school/:siteId/multi-class-student', element: <MultiClassStudent />, scope: 'school:write' },
+    { path: '/school/:siteId/batch-student-upload', element: <BatchStudentUpload />, scope: 'school:write' },
 
-    return {
-        path: route.path!,
-        element: <MainLayout>{element}</MainLayout>
-    };
-});
+    // Attendance
+    { path: '/school/:siteId/attendance/approve-leave', element: <ApproveLeave />, scope: 'school:write' },
+
+    // Examinations
+    { path: '/school/:siteId/exams/exam-group', element: <ExamGroup />, scope: 'school:read' },
+    { path: '/school/:siteId/exams/exam-schedule', element: <ExamSchedule />, scope: 'school:read' },
+    { path: '/school/:siteId/exams/exam-result', element: <ExamResult />, scope: 'school:read' },
+    { path: '/school/:siteId/exams/marks-grade', element: <MarksGrade />, scope: 'school:read' },
+    { path: '/school/:siteId/exams/design-admit-card', element: <DesignAdmitCard />, scope: 'school:write' },
+    { path: '/school/:siteId/exams/print-admit-card', element: <PrintAdmitCard />, scope: 'school:read' },
+    { path: '/school/:siteId/exams/design-marksheet', element: <DesignMarksheet />, scope: 'school:write' },
+    { path: '/school/:siteId/exams/print-marksheet', element: <PrintMarksheet />, scope: 'school:read' },
+    
+    // Online Exams
+    { path: '/school/:siteId/online-exams/online-exam', element: <OnlineExam />, scope: 'school:read' },
+    { path: '/school/:siteId/online-exams/question-bank', element: <QuestionBank />, scope: 'school:read' },
+    { path: '/school/:siteId/online-exams/online-exam-result', element: <OnlineExamResult />, scope: 'school:read' },
+
+    // Fees
+    { path: '/school/:siteId/fees/search-payments', element: <SearchPayments />, scope: 'school:read' },
+    { path: '/school/:siteId/fees/fees-master', element: <FeesMaster />, scope: 'school:read' },
+    { path: '/school/:siteId/fees/fees-reminder', element: <FeesReminder />, scope: 'school:read' },
+    { path: '/school/:siteId/fees/discounts', element: <Discounts />, scope: 'school:read' },
+
+    // Finance
+    { path: '/school/:siteId/finance/income', element: <Income />, scope: 'school:read' },
+    { path: '/school/:siteId/finance/expenses', element: <Expenses />, scope: 'school:read' },
+
+    // Homework
+    { path: '/school/:siteId/homework', element: <AddHomework />, scope: 'school:read' },
+
+    // Communicate
+    { path: '/school/:siteId/communicate/notice-board', element: <NoticeBoard />, scope: 'school:read' },
+    { path: '/school/:siteId/communicate/send-message', element: <SendMessage />, scope: 'school:write' },
+    { path: '/school/:siteId/communicate/logs', element: <Logs />, scope: 'school:read' },
+
+    // Library
+    { path: '/school/:siteId/library/book-list', element: <BookList />, scope: 'school:read' },
+    { path: '/school/:siteId/library/issue-return', element: <IssueReturn />, scope: 'school:write' },
+    { path: '/school/:siteId/library/add-member', element: <AddMember />, scope: 'school:write' },
+    { path: '/school/:siteId/library/digital', element: <DigitalLibrary />, scope: 'school:read' },
+    { path: '/school/:siteId/library/viewer/:assetId', element: <DigitalViewer />, scope: 'school:read' },
+    { path: '/school/:siteId/library/catchup', element: <CatchUpClasses />, scope: 'school:read' },
+    { path: '/school/:siteId/library/catchup/:catchupId', element: <CatchUpViewer />, scope: 'school:read' },
+
+    // Inventory
+    { path: '/school/:siteId/inventory/add-stock', element: <AddStock />, scope: 'school:write' },
+    { path: '/school/:siteId/inventory/issue-item', element: <IssueItem />, scope: 'school:write' },
+    { path: '/school/:siteId/inventory/setup', element: <InventorySetup />, scope: 'school:write' },
+    
+    // Transport
+    { path: '/school/:siteId/transport/routes', element: <Routes />, scope: 'school:read' },
+    { path: '/school/:siteId/transport/vehicles', element: <Vehicles />, scope: 'school:read' },
+    { path: '/school/:siteId/transport/assign-vehicle', element: <AssignVehicle />, scope: 'school:write' },
+    { path: '/school/:siteId/transport/vehicle-requests', element: <VehicleRequests />, scope: 'school:read' },
+
+    // Hostel
+    { path: '/school/:siteId/hostel/hostels', element: <Hostels />, scope: 'school:read' },
+    { path: '/school/:siteId/hostel/room-type', element: <RoomType />, scope: 'school:read' },
+    { path: '/school/:siteId/hostel/rooms', element: <HostelRooms />, scope: 'school:read' },
+    { path: '/school/:siteId/hostel/allocate-room', element: <AllocateRoom />, scope: 'school:write' },
+
+    // Certificate
+    { path: '/school/:siteId/certificate/student-certificate', element: <StudentCertificate />, scope: 'school:write' },
+    { path: '/school/:siteId/certificate/generate-certificate', element: <GenerateCertificate />, scope: 'school:write' },
+    { path: '/school/:siteId/certificate/student-id-card', element: <StudentIdCard />, scope: 'school:write' },
+    { path: '/school/:siteId/certificate/staff-id-card', element: <StaffIdCard />, scope: 'school:write' },
+    { path: '/school/:siteId/certificate/id-card-designer', element: <IdCardDesigner />, scope: 'school:write' },
+    
+    // Alumni
+    { path: '/school/:siteId/alumni/manage', element: <ManageAlumni />, scope: 'school:read' },
+    { path: '/school/:siteId/alumni/events', element: <AlumniEvents />, scope: 'school:read' },
+
+    // Reports
+    { path: '/school/:siteId/reports/student-report', element: <StudentReport />, scope: 'school:admin' },
+    { path: '/school/:siteId/reports/finance-report', element: <FinanceReport />, scope: 'school:admin' },
+    { path: '/school/:siteId/reports/user-log', element: <UserLog />, scope: 'school:admin' },
+    { path: '/school/:siteId/reports/audit-trail', element: <AuditTrail />, scope: 'school:admin' },
+
+    // Front Office
+    { path: '/front-office/:siteId', element: <FrontOfficeDashboard />, scope: 'school:read' },
+    { path: '/front-office/:siteId/admission-enquiry', element: <AdmissionEnquiry />, scope: 'school:read' },
+    { path: '/front-office/:siteId/visitor-book', element: <VisitorBook />, scope: 'school:read' },
+    { path: '/front-office/:siteId/phone-call-log', element: <PhoneCallLog />, scope: 'school:read' },
+    { path: '/front-office/:siteId/postal-dispatch', element: <PostalDispatch />, scope: 'school:read' },
+    { path: '/front-office/:siteId/postal-receive', element: <PostalReceive />, scope: 'school:read' },
+    { path: '/front-office/:siteId/complain', element: <Complain />, scope: 'school:read' },
+    { path: '/front-office/:siteId/setup', element: <FrontOfficeSetup />, scope: 'school:write' },
+
+    // Education (LMS) routes
+    { path: '/education/:siteId', element: <LmsDashboard />, scope: 'school:read' },
+    { path: '/education/:siteId/courses', element: <Courses />, scope: 'school:read' },
+    { path: '/education/:siteId/courses/:courseId', element: <CourseDetail />, scope: 'school:read' },
+    { path: '/education/:siteId/curriculum', element: <Curriculum />, scope: 'school:read' },
+    { path: '/education/:siteId/assignments', element: <Assignments />, scope: 'school:read' },
+    { path: '/education/:siteId/quizzes', element: <Quizzes />, scope: 'school:read' },
+    { path: '/education/:siteId/resources', element: <Resources />, scope: 'school:read' },
+
+    // Settings
+    { path: '/school/:siteId/settings/general', element: <GeneralSettings />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/integrations', element: <Integrations />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/print', element: <PrintSettings />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/cms', element: <CmsSettings />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/rbac', element: <Roles />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/backup', element: <Backup />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/users-modules', element: <UsersModules />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/customization', element: <Customization />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/system-fields', element: <SystemFields />, scope: 'school:admin' },
+    { path: '/school/:siteId/settings/system-update', element: <SystemUpdate />, scope: 'school:admin' },
+];
+
+export const schoolRoutes = routes.map(({ path, element, scope }) => ({
+    path,
+    element: <MainLayout><RequireScope scope={scope}>{element}</RequireScope></MainLayout>
+}));

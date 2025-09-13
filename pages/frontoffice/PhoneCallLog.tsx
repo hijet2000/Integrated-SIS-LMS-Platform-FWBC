@@ -86,9 +86,10 @@ const PhoneCallLog: React.FC = () => {
     const [selectedCall, setSelectedCall] = useState<PhoneCallLog | null>(null);
     const [filters, setFilters] = useState({ callType: 'all' });
 
-    const canCreate = can('create', 'frontoffice.calls', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'frontoffice.calls', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'frontoffice.calls', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: callLogs, isLoading, isError, error } = useQuery<PhoneCallLog[], Error>({
         queryKey: ['phoneCallLogs', siteId],

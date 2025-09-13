@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -12,7 +11,6 @@ import { schoolRoutes } from '@/lib/routes';
 
 // Public/Guest pages that don't use the main layout
 const VerifyCertificate = React.lazy(() => import('@/pages/VerifyCertificate'));
-const Dashboard = React.lazy(() => import('@/pages/Dashboard'));
 
 const App: React.FC = () => {
   return (
@@ -25,8 +23,8 @@ const App: React.FC = () => {
               <Route path="/verify/:serialId" element={<VerifyCertificate />} />
 
               {/* Redirects for old/root paths */}
-              <Route path="/" element={<Navigate to="/school/site_123/dashboard" replace />} />
-              <Route path="/dashboard/:siteId" element={<Navigate to="/school/:siteId/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/school/site_123" replace />} />
+              <Route path="/dashboard/:siteId" element={<Navigate to="/school/:siteId" replace />} />
 
               {/* Dynamically generated school routes */}
               {schoolRoutes.map(({ path, element }) => (

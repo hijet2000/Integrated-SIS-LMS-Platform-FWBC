@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -17,7 +18,8 @@ const DownloadAssignments: React.FC = () => {
     const { user } = useAuth();
     const can = useCan();
 
-    const canRead = can('read', 'downloads.content', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     const { data: assignments = [], isLoading: l1 } = useQuery<Assignment[], Error>({ queryKey: ['assignments', siteId], queryFn: () => assignmentApi.get(siteId!) });
     const { data: subjects = [], isLoading: l2 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!) });

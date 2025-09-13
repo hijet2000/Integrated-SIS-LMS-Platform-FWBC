@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -74,9 +75,10 @@ const PostalDispatch: React.FC = () => {
     const [selectedDispatch, setSelectedDispatch] = useState<PostalDispatch | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const canCreate = can('create', 'frontoffice.postal', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'frontoffice.postal', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'frontoffice.postal', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: dispatches, isLoading, isError, error } = useQuery<PostalDispatch[], Error>({
         queryKey: ['postalDispatches', siteId],

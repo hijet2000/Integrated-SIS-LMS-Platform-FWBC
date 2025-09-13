@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -52,32 +53,21 @@ const ItemForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    id="itemName"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-900 dark:border-gray-600"
-                />
-            </div>
-             <div>
-                <label htmlFor="itemDesc" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description (Optional)</label>
-                <textarea
-                    id="itemDesc"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-900 dark:border-gray-600"
-                />
-            </div>
-            <button type="submit" className="hidden" />
+        <form onSubmit={handleSubmit}>
+            <label htmlFor="itemName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+            <input
+                type="text"
+                id="itemName"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-900 dark:border-gray-600"
+            />
+             <button type="submit" className="hidden" />
         </form>
     );
 };
+
 
 // --- Tab Content Component ---
 const SetupCategoryTab: React.FC<{
@@ -186,10 +176,11 @@ const Categories: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<CategoryKey>('categories');
 
-    const canRead = can('read', 'student.categories', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'student.categories', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'student.categories', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'student.categories', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
     
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to configure these settings." />;

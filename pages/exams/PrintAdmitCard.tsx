@@ -73,7 +73,8 @@ const PrintAdmitCard: React.FC = () => {
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-    const canRead = can('read', 'exams.admit-card', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
     
     // Data Queries
     const { data: templates = [], isLoading: l1 } = useQuery<AdmitCardTemplate[], Error>({ queryKey: ['admitCardTemplates', siteId], queryFn: () => admitCardTemplateApi.get(siteId!), enabled: canRead });

@@ -61,7 +61,8 @@ const OtherDownloads: React.FC = () => {
         categoryId: 'all' 
     });
 
-    const canRead = can('read', 'downloads.content', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     const { data: content = [], isLoading: l1 } = useQuery<Content[], Error>({ queryKey: ['content', siteId], queryFn: () => contentApi.get(siteId!), enabled: canRead });
     const { data: teachers = [], isLoading: l2 } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!), enabled: canRead });

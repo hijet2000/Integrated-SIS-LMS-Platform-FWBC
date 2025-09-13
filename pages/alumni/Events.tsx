@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -64,7 +65,8 @@ const Events: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<AlumniEvent | null>(null);
 
-    const canManage = can('update', 'alumni.events', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
+    const canManage = can('school:write');
 
     const { data: events = [], isLoading: l1 } = useQuery<AlumniEvent[], Error>({ queryKey: ['alumniEvents', siteId], queryFn: () => alumniEventApi.get(siteId!) });
     const { data: rsvps = [], isLoading: l2 } = useQuery<AlumniEventRSVP[], Error>({ queryKey: ['alumniRsvps', siteId], queryFn: () => alumniEventRsvpApi.get(siteId!) });

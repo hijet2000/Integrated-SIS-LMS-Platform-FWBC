@@ -89,9 +89,10 @@ const Complain: React.FC = () => {
     const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
     const [filters, setFilters] = useState({ type: 'all', status: 'all' });
 
-    const canCreate = can('create', 'frontoffice.complaints', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'frontoffice.complaints', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'frontoffice.complaints', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: complaints, isLoading, isError, error } = useQuery<Complaint[], Error>({
         queryKey: ['complaints', siteId],

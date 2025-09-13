@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -134,7 +135,8 @@ const AddHomework: React.FC = () => {
     const [evaluationTarget, setEvaluationTarget] = useState<Homework | null>(null);
     const [formState, setFormState] = useState({classroomId: '', subjectId: '', title: '', description: '', assignDate: new Date().toISOString().split('T')[0], dueDate: ''});
     
-    const canManage = can('update', 'homework', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: homeworks, isLoading, isError, error } = useQuery<Homework[], Error>({ queryKey: ['homework', siteId], queryFn: () => homeworkApi.get(siteId!), enabled: canManage });
     const { data: classrooms = [] } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!), enabled: canManage });

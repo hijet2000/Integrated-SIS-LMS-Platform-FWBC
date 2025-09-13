@@ -23,7 +23,7 @@ import type { Program, Classroom, FeeGroup, Teacher, Student } from '@/types';
 type Tab = 'classes' | 'sections';
 
 // --- Classes (Programs) Tab ---
-const ClassesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const ClassesTab: React.FC<{ siteId: string, can: (scope: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<Program | null>(null);
@@ -43,7 +43,7 @@ const ClassesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }>
 
     return (
         <div>
-            {can('create', 'school.academics') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Class</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Class</Button>}
             {isLoading && <Spinner/>}
             {isError && <ErrorState title="Error" message="Could not load classes." />}
             {!isLoading && !isError && (
@@ -64,8 +64,8 @@ const ClassesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }>
                                     <td className="px-6 py-4">{item.session}</td>
                                     <td className="px-6 py-4">{item.feeGroupId ? feeGroupMap.get(item.feeGroupId) : 'N/A'}</td>
                                     <td className="px-6 py-4 text-right space-x-2">
-                                        {can('update', 'school.academics') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                        {can('delete', 'school.academics') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                        {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                        {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                                     </td>
                                 </tr>
                             ))}
@@ -94,7 +94,7 @@ const ClassForm: React.FC<{item?: Program | null, onSave: (data: any) => void, f
 };
 
 // --- Sections (Classrooms) Tab ---
-const SectionsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const SectionsTab: React.FC<{ siteId: string, can: (scope: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<Classroom | null>(null);
@@ -125,7 +125,7 @@ const SectionsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
     
     return (
         <div>
-            {can('create', 'school.academics') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Section</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Section</Button>}
             {isLoading && <Spinner/>}
             {isError && <ErrorState title="Error" message="Could not load sections." />}
             {!isLoading && !isError && (
@@ -148,8 +148,8 @@ const SectionsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
                                     <td className="px-6 py-4">{item.tutorId ? teacherMap.get(item.tutorId) : 'N/A'}</td>
                                     <td className="px-6 py-4">{studentCountMap.get(item.id) || 0} / {item.capacity}</td>
                                     <td className="px-6 py-4 text-right space-x-2">
-                                        {can('update', 'school.academics') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                        {can('delete', 'school.academics') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                        {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                        {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                                     </td>
                                 </tr>
                             ))}
@@ -187,7 +187,8 @@ const ClassesAndSections: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('classes');
 
-    const canRead = can('read', 'school.academics', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:read')` to match the `useCan` hook's implementation.
+    const canRead = can('school:read');
 
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to configure classes and sections." />;

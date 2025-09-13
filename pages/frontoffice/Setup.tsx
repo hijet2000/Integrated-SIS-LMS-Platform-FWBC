@@ -178,10 +178,11 @@ const SetupFrontOffice: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Category>('purposes');
 
-    const canRead = can('read', 'frontoffice.setup', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'frontoffice.setup', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'frontoffice.setup', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'frontoffice.setup', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
     
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to configure Front Office settings." />;

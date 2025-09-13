@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -68,7 +69,8 @@ const ManageAlumni: React.FC = () => {
     const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
     const [filters, setFilters] = useState({ searchTerm: '', year: 'all' });
 
-    const canManage = can('update', 'alumni.manage', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
+    const canManage = can('school:write');
 
     const { data: alumni = [], isLoading: l1 } = useQuery<Alumni[], Error>({ queryKey: ['alumni', siteId], queryFn: () => alumniApi.get(siteId!) });
     const { data: classrooms = [], isLoading: l2 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });

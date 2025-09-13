@@ -34,7 +34,8 @@ const OnlineAdmission: React.FC = () => {
     const [selectedApplication, setSelectedApplication] = useState<OnlineAdmissionApplication | null>(null);
     const [filters, setFilters] = useState({ status: 'all', classSought: 'all' });
 
-    const canUpdate = can('update', 'student.online-admission', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canUpdate = can('school:write');
 
     const { data: applications, isLoading, isError, error } = useQuery<OnlineAdmissionApplication[], Error>({
         queryKey: ['onlineAdmissionApplications', siteId],

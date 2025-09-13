@@ -1,10 +1,12 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
-import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 import { useCan } from '@/hooks/useCan';
 import { useAuth } from '@/hooks/useAuth';
 import { certificateTemplateApi, issuedCertificateApi, getStudents, getClassrooms } from '@/services/sisApi';
@@ -67,7 +69,8 @@ const StudentCertificate: React.FC = () => {
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [generatedCertificate, setGeneratedCertificate] = useState<IssuedCertificate | null>(null);
 
-    const canIssue = can('create', 'certificate.issue', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
+    const canIssue = can('school:write');
 
     const { data: templates = [] } = useQuery<CertificateTemplate[], Error>({ queryKey: ['certificateTemplates', siteId], queryFn: () => certificateTemplateApi.get(siteId!) });
     const { data: students = [] } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!) });

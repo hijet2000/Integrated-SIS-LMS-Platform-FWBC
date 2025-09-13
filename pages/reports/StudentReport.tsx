@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -26,8 +25,8 @@ const StudentReport: React.FC = () => {
         endDate: '',
     });
 
-    const canRead = can('read', 'school.students', { kind: 'site', id: siteId! });
-    const canExport = can('export', 'school.students', { kind: 'site', id: siteId! });
+    const canRead = can('school:admin');
+    const canExport = can('school:admin');
     
     const { data: students, isLoading: isLoadingStudents, isError, error } = useQuery<Student[], Error>({
         queryKey: ['students', siteId],

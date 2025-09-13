@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -76,8 +77,8 @@ const IdCardDesigner: React.FC = () => {
         showValidity: true,
     });
 
-    // FIX: Corrected invalid resource name 'certificate.id-card-designer' to 'certificate.templates'.
-    const canManage = can('update', 'certificate.templates', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
+    const canManage = can('school:write');
 
     const { data: templates = [], isLoading, isError } = useQuery<IdCardTemplate[], Error>({
         queryKey: ['idCardTemplates', siteId],

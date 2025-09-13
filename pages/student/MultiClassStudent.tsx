@@ -26,9 +26,10 @@ const MultiClassStudent: React.FC = () => {
     const can = useCan();
 
     // Permissions
-    const canRead = can('read', 'student.multi-class', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'student.multi-class', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'student.multi-class', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canDelete = can('school:write');
 
     // State for the assignment form
     const [selectedStudentId, setSelectedStudentId] = useState('');

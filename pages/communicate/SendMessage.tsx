@@ -31,7 +31,8 @@ const SendMessage: React.FC = () => {
     const [attachment, setAttachment] = useState<File | null>(null);
 
     // --- Permissions ---
-    const canSend = can('create', 'communicate.send', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canSend = can('school:write');
 
     // --- Data Fetching ---
     const { data: classrooms = [], isLoading: l1 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });

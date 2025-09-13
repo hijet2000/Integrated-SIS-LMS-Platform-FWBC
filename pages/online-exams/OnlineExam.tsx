@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -84,10 +85,11 @@ const OnlineExam: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedExam, setSelectedExam] = useState<OnlineExam | null>(null);
 
-    const canRead = can('read', 'online-exams', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'online-exams', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'online-exams', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'online-exams', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: exams, isLoading, isError, error } = useQuery<OnlineExam[], Error>({
         queryKey: ['onlineExams', siteId],

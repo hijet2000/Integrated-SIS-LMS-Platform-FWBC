@@ -107,7 +107,8 @@ const PrintMarksheet: React.FC = () => {
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-    const canRead = can('read', 'exams.marksheet', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
     
     // Data Queries
     const { data: templates = [] } = useQuery<MarksheetTemplate[], Error>({ queryKey: ['marksheetTemplates', siteId], queryFn: () => marksheetTemplateApi.get(siteId!), enabled: canRead });

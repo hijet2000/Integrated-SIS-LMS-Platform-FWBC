@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -49,7 +50,8 @@ const IssueItem: React.FC = () => {
     
     const [isIssueModalOpen, setIssueModalOpen] = useState(false);
 
-    const canManage = can('update', 'inventory', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: issues = [], isLoading: l1 } = useQuery<ItemIssue[], Error>({ queryKey: ['itemIssues', siteId], queryFn: () => itemIssueApi.get(siteId!) });
     const { data: items = [], isLoading: l2 } = useQuery<InventoryItem[], Error>({ queryKey: ['inventoryItems', siteId], queryFn: () => inventoryItemApi.get(siteId!) });
@@ -85,7 +87,7 @@ const IssueItem: React.FC = () => {
                             <thead><tr><th className="p-2 text-left">Date</th><th className="p-2 text-left">Item</th><th className="p-2 text-left">Qty</th><th className="p-2 text-left">Issued To</th></tr></thead>
                             <tbody>{issues.map(iss => <tr key={iss.id}><td className="p-2">{iss.issueDate}</td><td className="p-2">{itemMap.get(iss.itemId)}</td><td className="p-2">{iss.quantity}</td><td className="p-2">{userMap.get(iss.issueTo)}</td></tr>)}</tbody>
                         </table>
-                    ) : <EmptyState title="No History" message="No items have been issued yet."/>}
+                    ) : <EmptyState title="No History" message="No items have been issued yet." />}
                 </CardContent>
             </Card>
 

@@ -169,7 +169,8 @@ const SearchPayments: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('payments');
 
-    const canRead = can('read', 'fees.search', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     const { data: invoices = [], isLoading: isLoadingInvoices } = useQuery<FeeInvoice[], Error>({ queryKey: ['invoices', siteId], queryFn: () => getInvoices(siteId!), enabled: canRead });
     const { data: students = [], isLoading: isLoadingStudents } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!), enabled: canRead });

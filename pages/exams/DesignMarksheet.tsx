@@ -113,10 +113,11 @@ const DesignMarksheet: React.FC = () => {
     const [isDesignerOpen, setIsDesignerOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<MarksheetTemplate | null>(null);
 
-    const canRead = can('read', 'exams.marksheet', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'exams.marksheet', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'exams.marksheet', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'exams.marksheet', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: templates, isLoading, isError, error } = useQuery<MarksheetTemplate[], Error>({
         queryKey: ['marksheetTemplates', siteId],

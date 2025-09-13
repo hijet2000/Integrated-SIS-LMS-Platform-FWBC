@@ -27,7 +27,7 @@ const SecurePlayer: React.FC<SecurePlayerProps> = ({ kind, src }) => {
                 hls = new Hls();
                 hls.loadSource(src);
                 hls.attachMedia(videoElement);
-                hls.on(Hls.Events.ERROR, function (event, data) {
+                hls.on(Hls.Events.ERROR, function (_event, data) {
                     if (data.fatal) {
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:

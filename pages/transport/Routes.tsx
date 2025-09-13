@@ -49,7 +49,8 @@ const Routes: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<TransportRoute | null>(null);
 
-    const canManage = can('update', 'transport', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: routes, isLoading, isError, error } = useQuery<TransportRoute[], Error>({ queryKey: ['transportRoutes', siteId], queryFn: () => transportRouteApi.get(siteId!) });
 

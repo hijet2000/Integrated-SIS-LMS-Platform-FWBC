@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -30,7 +31,8 @@ const OnlineExamResult: React.FC = () => {
     const can = useCan();
     const [selectedExamId, setSelectedExamId] = useState('');
 
-    const canRead = can('read', 'online-exams.result', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     const { data: exams = [], isLoading: l1 } = useQuery<OnlineExam[], Error>({
         queryKey: ['onlineExams', siteId],

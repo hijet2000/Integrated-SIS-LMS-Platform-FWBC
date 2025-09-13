@@ -122,10 +122,11 @@ const ExamSchedulePage: React.FC = () => {
     const [selectedSchedule, setSelectedSchedule] = useState<ExamSchedule | null>(null);
     const [filters, setFilters] = useState({ examGroupId: 'all', classroomId: 'all' });
 
-    const canRead = can('read', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'exams.schedule', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'exams.schedule', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     // Data queries
     const { data: schedules, isLoading, isError, error } = useQuery<ExamSchedule[], Error>({ queryKey: ['examSchedules', siteId], queryFn: () => examScheduleApi.get(siteId!), enabled: canRead });

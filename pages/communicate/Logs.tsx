@@ -36,8 +36,10 @@ const Logs: React.FC = () => {
     });
     const [viewingLog, setViewingLog] = useState<CommunicationLog | null>(null);
 
-    const canRead = can('read', 'communicate.logs', { kind: 'site', id: siteId! });
-    const canExport = can('export', 'communicate.logs', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
+    // FIX: Corrected useCan call to use a single scope string.
+    const canExport = can('school:write');
 
     const { data: logs, isLoading: isLoadingLogs } = useQuery<CommunicationLog[], Error>({
         queryKey: ['communicationLogs', siteId],
@@ -80,7 +82,7 @@ const Logs: React.FC = () => {
     }, [logs, user, filters]);
 
     if (!canRead) {
-        return <ErrorState title="Access Denied" message="You do not have permission to view communication logs." />;
+        return <ErrorState title="Access Denied" message="You do not have the required permissions to view this page." />;
     }
 
     const isLoading = isLoadingLogs || isLoadingTeachers;
@@ -134,36 +136,4 @@ const Logs: React.FC = () => {
                                                 <td className="px-6 py-4">{log.recipientsDescription}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 italic">"{log.messageSnippet}"</td>
                                                 <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[log.status]}`}>{log.status}</span></td>
-                                                <td className="px-6 py-4 text-right"><Button size="sm" onClick={() => setViewingLog(log)}>View Details</Button></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : <EmptyState title="No Logs Found" message="No communication logs match your criteria." />
-                    )}
-                </CardContent>
-            </Card>
-            
-            <Modal isOpen={!!viewingLog} onClose={() => setViewingLog(null)} title="Message Details">
-                {viewingLog && (
-                    <div className="space-y-3 text-sm">
-                        <p><strong>Date:</strong> {new Date(viewingLog.sentAt).toLocaleString()}</p>
-                        <p><strong>Sender:</strong> {teacherMap.get(viewingLog.senderId) || 'System'}</p>
-                        <p><strong>Channel:</strong> {viewingLog.channel}</p>
-                        <p><strong>Recipients:</strong> {viewingLog.recipientsDescription}</p>
-                        {viewingLog.subject && <p><strong>Subject:</strong> {viewingLog.subject}</p>}
-                        <hr className="my-2 dark:border-gray-600"/>
-                        <p className="font-semibold">Full Message:</p>
-                        <p className="p-2 bg-gray-100 dark:bg-gray-900 rounded-md whitespace-pre-wrap">{viewingLog.fullMessage}</p>
-                        <hr className="my-2 dark:border-gray-600"/>
-                        <p><strong>Status:</strong> {viewingLog.status}</p>
-                        {viewingLog.status === 'Failed' && <p><strong>Reason:</strong> {viewingLog.failureReason}</p>}
-                    </div>
-                )}
-            </Modal>
-        </div>
-    );
-};
-
-export default Logs;
+                                                <td className="px

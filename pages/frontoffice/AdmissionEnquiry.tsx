@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -85,9 +86,10 @@ const AdmissionEnquiry: React.FC = () => {
     const [selectedEnquiry, setSelectedEnquiry] = useState<AdmissionEnquiry | null>(null);
     const [filters, setFilters] = useState({ source: 'all', status: 'all' });
 
-    const canCreate = can('create', 'frontoffice.enquiry', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'frontoffice.enquiry', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'frontoffice.enquiry', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: enquiries, isLoading, isError, error } = useQuery<AdmissionEnquiry[], Error>({
         queryKey: ['admissionEnquiries', siteId],

@@ -100,7 +100,8 @@ const QuestionBank: React.FC = () => {
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
     const [filters, setFilters] = useState({ subjectId: 'all', classroomId: 'all' });
 
-    const canManage = can('update', 'online-exams.question-bank', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: questions, isLoading, isError, error } = useQuery<Question[], Error>({ queryKey: ['questions', siteId], queryFn: () => questionApi.get(siteId!) });
     const { data: subjects = [] } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!) });

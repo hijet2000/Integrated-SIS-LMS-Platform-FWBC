@@ -33,7 +33,8 @@ const BulkDelete: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Permissions
-    const canDelete = can('delete', 'student.bulk', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canDelete = can('school:write');
 
     // Data Fetching
     const { data: students, isLoading: isLoadingStudents, isError, error } = useQuery<Student[], Error>({

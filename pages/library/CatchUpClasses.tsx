@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
@@ -158,9 +157,9 @@ const CatchupForm: React.FC<{recording?:CatchupClass|null, onSave:(data:any)=>vo
 const CatchUpClasses: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
-    const canManage = can('create', 'library.catchup', { kind: 'site', id: siteId! });
+    const canManage = can('school:write');
 
-    if (!can('read', 'library.catchup', { kind: 'site', id: siteId! })) {
+    if (!can('school:read')) {
         return <ErrorState title="Access Denied" message="You do not have permission to view catch-up classes." />;
     }
 

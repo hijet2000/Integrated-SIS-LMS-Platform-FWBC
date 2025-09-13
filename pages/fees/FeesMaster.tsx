@@ -15,13 +15,12 @@ import {
     feeMasterApi,
     getClassrooms,
 } from '@/services/sisApi';
-// FIX: Changed import path from @/constants to @/types to correct the module resolution error.
 import type { FeeType, FeeGroup, FeeMaster, Classroom } from '@/types';
 
 type CategoryKey = 'types' | 'groups' | 'masters';
 
 // --- Fee Types Tab ---
-const FeeTypesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const FeeTypesTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<FeeType | null>(null);
@@ -41,18 +40,17 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
     
     return (
         <div>
-            {can('create', 'fees.master') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Type</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Type</Button>}
             <table className="min-w-full divide-y">
-                 {/* FIX: Removed 'Code' column as the property does not exist on FeeType. */}
-                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
+                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Description</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y">
                     {items?.map(item => (
                         <tr key={item.id}>
                             <td className="px-6 py-4">{item.name}</td>
-                            
+                            <td className="px-6 py-4 text-sm text-gray-500">{item.description}</td>
                             <td className="px-6 py-4 text-right space-x-2">
-                                {can('update', 'fees.master') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                {can('delete', 'fees.master') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                             </td>
                         </tr>
                     ))}
@@ -68,17 +66,18 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }
 };
 const FeeTypeForm: React.FC<{item?: FeeType | null, onSave: (data: any) => void, onCancel: () => void}> = ({ item, onSave, onCancel }) => {
     const [name, setName] = useState(item?.name || '');
-    // FIX: Removed 'code' state as it does not exist on FeeType.
+    const [description, setDescription] = useState(item?.description || '');
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name }); }} className="space-y-4">
+        <form onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
             <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
+            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md" rows={2}/></div>
             <div className="hidden"><button type="submit">Save</button></div>
         </form>
     );
 };
 
 // --- Fee Groups Tab ---
-const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<FeeGroup | null>(null);
@@ -101,7 +100,7 @@ const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean 
     
     return (
         <div>
-            {can('create', 'fees.master') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Group</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Group</Button>}
             <table className="min-w-full divide-y">
                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Included Fee Types</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y">
@@ -110,8 +109,8 @@ const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean 
                             <td className="px-6 py-4">{item.name}</td>
                             <td className="px-6 py-4 text-sm">{item.feeTypeIds.map(id => feeTypeMap.get(id)).join(', ')}</td>
                             <td className="px-6 py-4 text-right space-x-2">
-                                {can('update', 'fees.master') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                {can('delete', 'fees.master') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                             </td>
                         </tr>
                     ))}
@@ -144,7 +143,7 @@ const FeeGroupForm: React.FC<{item?: FeeGroup | null, onSave: (data: any) => voi
 
 
 // --- Fee Masters Tab ---
-const FeeMastersTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const FeeMastersTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<FeeMaster | null>(null);
@@ -170,7 +169,7 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean
 
     return (
         <div>
-            {can('create', 'fees.master') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Master</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Master</Button>}
             <table className="min-w-full divide-y">
                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Fee Group</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Class</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Amount</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Due Date</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y">
@@ -181,8 +180,8 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean
                             <td className="px-6 py-4">${item.amount.toFixed(2)}</td>
                             <td className="px-6 py-4">{new Date(item.dueDate + 'T00:00:00').toLocaleDateString()}</td>
                             <td className="px-6 py-4 text-right space-x-2">
-                                {can('update', 'fees.master') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                {can('delete', 'fees.master') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                             </td>
                         </tr>
                     ))}
@@ -223,7 +222,8 @@ const FeesMaster: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<CategoryKey>('types');
 
-    const canRead = can('read', 'fees.master', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to configure fees." />;

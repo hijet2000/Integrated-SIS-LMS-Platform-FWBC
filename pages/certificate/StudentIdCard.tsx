@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -67,7 +68,8 @@ const StudentIdCard: React.FC = () => {
     const [generatedCards, setGeneratedCards] = useState<IssuedCertificate[]>([]);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-    const canCreate = can('create', 'certificate.id-cards', { kind: 'site', id: siteId! });
+    // FIX: Correct useCan call to use a single scope argument.
+    const canCreate = can('school:write');
 
     const { data: templates = [] } = useQuery<IdCardTemplate[], Error>({ queryKey: ['idCardTemplates', siteId], queryFn: () => idCardTemplateApi.get(siteId!) });
     const { data: classrooms = [] } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });

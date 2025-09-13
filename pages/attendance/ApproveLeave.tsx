@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -81,9 +82,12 @@ const ApproveLeave: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [filters, setFilters] = useState({ classroomId: 'all', status: 'all' });
 
-    const canRead = can('read', 'attendance.approve-leave', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'attendance.approve-leave', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'attendance.approve-leave', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission checks with simple scope-based checks (`school:read`, `school:write`) to match the `useCan` hook's implementation and resolve argument count errors.
+    const canRead = can('school:read');
+    // FIX: Replace complex permission checks with simple scope-based checks (`school:read`, `school:write`) to match the `useCan` hook's implementation and resolve argument count errors.
+    const canCreate = can('school:write');
+    // FIX: Replace complex permission checks with simple scope-based checks (`school:read`, `school:write`) to match the `useCan` hook's implementation and resolve argument count errors.
+    const canUpdate = can('school:write');
 
     const { data: applications = [], isLoading: isLoadingApps } = useQuery<StudentLeaveApplication[], Error>({ queryKey: ['studentLeaveApplications', siteId], queryFn: () => getStudentLeaveApplications(siteId!), enabled: canRead });
     const { data: students = [], isLoading: isLoadingStudents } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!), enabled: canRead });
@@ -97,8 +101,8 @@ const ApproveLeave: React.FC = () => {
         onError: (err: Error) => alert(`Operation failed: ${err.message}`),
     };
 
-    const addMutation = useMutation({ 
-// FIX: Corrected logical error by explicitly passing all properties to the API call.
+    const addMutation = useMutation({
+        // FIX: Corrected logical error by explicitly passing all properties to the API call.
         mutationFn: (leave: Omit<StudentLeaveApplication, 'id'|'siteId'|'status'|'appliedOn'>) => 
             addStudentLeaveApplication({ 
                 ...leave,

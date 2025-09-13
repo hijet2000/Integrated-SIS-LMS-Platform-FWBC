@@ -110,10 +110,10 @@ const BookList: React.FC = () => {
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [filters, setFilters] = useState({ searchTerm: '', language: 'all', status: 'all' });
     
-    const canRead = can('read', 'library', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'library', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'library', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'library', { kind: 'site', id: siteId! });
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: books, isLoading, isError, error } = useQuery<Book[], Error>({
         queryKey: ['books', siteId],

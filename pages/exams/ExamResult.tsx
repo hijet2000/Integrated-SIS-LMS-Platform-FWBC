@@ -46,8 +46,9 @@ const ExamResult: React.FC = () => {
     });
     const [marksData, setMarksData] = useState<MarksEntryState>({});
 
-    const canRead = can('read', 'exams.result', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'exams.result', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
 
     // --- DATA FETCHING ---
     const { data: examGroups = [] } = useQuery<ExamGroup[], Error>({ queryKey: ['examGroups', siteId], queryFn: () => getExamGroups(siteId!), enabled: canRead });

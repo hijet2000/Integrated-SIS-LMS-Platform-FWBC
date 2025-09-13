@@ -56,7 +56,8 @@ const StudentAdmission: React.FC = () => {
     }, [location.state]);
 
 
-    const canCreate = can('create', 'student.admission', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canCreate = can('school:write');
 
     const { data: classrooms = [], isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({
         queryKey: ['classrooms', siteId],

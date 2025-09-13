@@ -89,10 +89,11 @@ const UploadContent: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedContent, setSelectedContent] = useState<Content | null>(null);
 
-    const canRead = can('read', 'downloads.content', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'downloads.content', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'downloads.content', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'downloads.content', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: content = [], isLoading: l1 } = useQuery<Content[], Error>({ queryKey: ['content', siteId], queryFn: () => contentApi.get(siteId!), enabled: canRead });
     const { data: classrooms = [], isLoading: l2 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!), enabled: canRead });

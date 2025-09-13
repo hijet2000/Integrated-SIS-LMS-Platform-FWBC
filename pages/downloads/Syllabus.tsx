@@ -46,7 +46,8 @@ const SyllabusList: React.FC<{ content: Content[]; subjectMap: Map<string, strin
 const Syllabus: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
-    const canRead = can('read', 'downloads.content', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     const { data: content = [], isLoading: l1 } = useQuery<Content[], Error>({ queryKey: ['content', siteId], queryFn: () => contentApi.get(siteId!), enabled: canRead });
     const { data: subjects = [], isLoading: l2 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!), enabled: canRead });

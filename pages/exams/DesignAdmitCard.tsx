@@ -140,10 +140,11 @@ const DesignAdmitCard: React.FC = () => {
     const [isDesignerOpen, setIsDesignerOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<AdmitCardTemplate | null>(null);
 
-    const canRead = can('read', 'exams.admit-card', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'exams.admit-card', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'exams.admit-card', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'exams.admit-card', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     const { data: templates, isLoading, isError, error } = useQuery<AdmitCardTemplate[], Error>({
         queryKey: ['admitCardTemplates', siteId],

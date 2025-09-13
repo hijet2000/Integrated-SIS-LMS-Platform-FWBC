@@ -53,7 +53,8 @@ const HostelsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<Hostel | null>(null);
 
-    const canManage = can('update', 'hostel', { kind: 'site', id: siteId! });
+    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
+    const canManage = can('school:write');
 
     const { data: items, isLoading, isError, error } = useQuery<Hostel[], Error>({ queryKey: ['hostels', siteId], queryFn: () => hostelApi.get(siteId!) });
     

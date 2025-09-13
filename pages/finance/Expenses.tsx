@@ -23,7 +23,7 @@ import type { Expense, ExpenseHead, SetupItem } from '@/types';
 type Tab = 'search' | 'heads';
 
 // --- Expense Heads Tab ---
-const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<ExpenseHead | null>(null);
@@ -43,7 +43,7 @@ const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boole
 
     return (
         <div>
-            {can('create', 'finance.expenses') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Expense Head</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Expense Head</Button>}
             <table className="min-w-full divide-y">
                  <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y">
@@ -51,8 +51,8 @@ const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boole
                         <tr key={item.id}>
                             <td className="px-6 py-4 font-medium">{item.name}</td>
                             <td className="px-6 py-4 text-right space-x-2">
-                                {can('update', 'finance.expenses') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                {can('delete', 'finance.expenses') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                             </td>
                         </tr>
                     ))}
@@ -66,16 +66,18 @@ const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any, b: any) => boole
 };
 const ItemForm: React.FC<{item?: SetupItem | null, onSave: (data: any) => void, onCancel: () => void}> = ({ item, onSave, onCancel }) => {
     const [name, setName] = useState(item?.name || '');
+    const [description, setDescription] = useState(item?.description || '');
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name }); }} className="space-y-4">
+        <form onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
             <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
+            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md" rows={2}/></div>
             <div className="flex justify-end space-x-2"><Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button><Button type="submit">Save</Button></div>
         </form>
     );
 };
 
 // --- Search Expense Tab ---
-const SearchExpenseTab: React.FC<{ siteId: string, can: (a: any, b: any) => boolean }> = ({ siteId, can }) => {
+const SearchExpenseTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ siteId, can }) => {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,7 +101,7 @@ const SearchExpenseTab: React.FC<{ siteId: string, can: (a: any, b: any) => bool
 
     return (
         <div>
-            {can('create', 'finance.expenses') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Expense</Button>}
+            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Expense</Button>}
             {items && items.length > 0 ? (
                 <table className="min-w-full divide-y">
                      <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Date</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Expense Head</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Amount</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
@@ -111,8 +113,8 @@ const SearchExpenseTab: React.FC<{ siteId: string, can: (a: any, b: any) => bool
                                 <td className="px-6 py-4 font-medium">{item.name}</td>
                                 <td className="px-6 py-4">${item.amount.toFixed(2)}</td>
                                 <td className="px-6 py-4 text-right space-x-2">
-                                    {can('update', 'finance.expenses') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                    {can('delete', 'finance.expenses') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
+                                    {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
+                                    {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
                                 </td>
                             </tr>
                         ))}
@@ -155,7 +157,8 @@ const Expenses: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('search');
 
-    const canRead = can('read', 'finance.expenses', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to manage expenses." />;

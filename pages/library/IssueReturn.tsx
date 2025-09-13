@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -29,9 +28,9 @@ const IssueReturn: React.FC = () => {
     const [isScanning, setIsScanning] = useState<false | 'member' | 'book'>(false);
 
 
-    const canRead = can('read', 'library.issue-return', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'library.issue-return', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'library.issue-return', { kind: 'site', id: siteId! });
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
 
     const { data: books = [], isLoading: l1 } = useQuery<Book[], Error>({ queryKey: ['books', siteId], queryFn: () => bookApi.get(siteId!) });
     const { data: members = [], isLoading: l2 } = useQuery<LibraryMember[], Error>({ queryKey: ['libraryMembers', siteId], queryFn: () => libraryMemberApi.get(siteId!) });

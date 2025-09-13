@@ -1,203 +1,162 @@
 
+// FIX: Created constants/sidebar.ts to define the sidebar navigation structure.
 import type { NavItem } from '@/types/navigation';
 
 export const SCHOOL_SIDEBAR: NavItem[] = [
-  { label: 'Dashboard', path: '/school/:siteId/dashboard', icon: 'LayoutDashboard', scope: 'school:read' },
-
   {
-    label: 'Front Office', icon: 'ReceptionBell', scope: 'school:read', children: [
-      { label: 'Admission Enquiry', path: '/school/:siteId/front-office/admission-enquiry' },
-      { label: 'Visitor Book', path: '/school/:siteId/front-office/visitor-book' },
-      { label: 'Phone Call Log', path: '/school/:siteId/front-office/phone-calls' },
-      { label: 'Postal Dispatch', path: '/school/:siteId/front-office/postal-dispatch' },
-      { label: 'Postal Receive', path: '/school/:siteId/front-office/postal-receive' },
-      { label: 'Complain Register', path: '/school/:siteId/front-office/complaints' },
-      { label: 'Setup Front Office', path: '/school/:siteId/front-office/setup' },
+    label: 'Dashboard',
+    path: '/school/:siteId',
+    scope: 'school:read',
+  },
+  {
+    label: 'Academics',
+    children: [
+      { label: 'Classes & Sections', path: '/school/:siteId/academics/classes', scope: 'school:read' },
+      { label: 'Subjects', path: '/school/:siteId/academics/subjects', scope: 'school:read' },
+      { label: 'Assign Class Teacher', path: '/school/:siteId/academics/assign-teacher', scope: 'school:write' },
+      { label: 'Subject Group', path: '/school/:siteId/academics/subject-group', scope: 'school:write' },
+      { label: 'Promote Students', path: '/school/:siteId/academics/promote-students', scope: 'school:write' },
+      { label: 'Class Timetable', path: '/school/:siteId/academics/class-timetable', scope: 'school:read' },
+      { label: 'Teachers Timetable', path: '/school/:siteId/academics/teachers-timetable', scope: 'school:read' },
+    ],
+  },
+  {
+    label: 'Student Information',
+    children: [
+      { label: 'Student Details', path: '/school/:siteId/students', scope: 'school:read' },
+      { label: 'Student Admission', path: '/school/:siteId/student-admission', scope: 'school:write' },
+      { label: 'Disabled Students', path: '/school/:siteId/disabled-students', scope: 'school:read' },
+      { label: 'Bulk Delete', path: '/school/:siteId/bulk-delete', scope: 'school:write' },
+      { label: 'Student Categories', path: '/school/:siteId/student-categories', scope: 'school:read' },
+      { label: 'Online Admission', path: '/school/:siteId/online-admission', scope: 'school:read' },
+      { label: 'Multi Class Student', path: '/school/:siteId/multi-class-student', scope: 'school:write' },
+      { label: 'Batch Student Upload', path: '/school/:siteId/batch-student-upload', scope: 'school:write' },
+    ],
+  },
+  {
+    label: 'Attendance',
+    children: [
+        { label: 'Student Attendance', path: '/school/:siteId/attendance', scope: 'school:read' },
+        { label: 'Attendance Reports', path: '/school/:siteId/attendance/records', scope: 'school:read' },
+        { label: 'Approve Leave', path: '/school/:siteId/attendance/approve-leave', scope: 'school:write' },
     ]
   },
-
   {
-    label: 'Student Information', icon: 'GraduationCap', children: [
-      { label: 'Student Details', path: '/school/:siteId/students' },
-      { label: 'Student Admission', path: '/school/:siteId/students/admission' },
-      { label: 'Online Admission', path: '/school/:siteId/students/online-admission' },
-      { label: 'Disabled Students', path: '/school/:siteId/students/disabled' },
-      { label: 'Multi Class Student', path: '/school/:siteId/students/multi-class' },
-      { label: 'Bulk Delete', path: '/school/:siteId/students/bulk-delete' },
-      { label: 'Categories / House / Disable Reason', path: '/school/:siteId/students/classifications' },
+    label: 'Examinations',
+    children: [
+        { label: 'Exam Group', path: '/school/:siteId/exams/exam-group', scope: 'school:read' },
+        { label: 'Exam Schedule', path: '/school/:siteId/exams/exam-schedule', scope: 'school:read' },
+        { label: 'Exam Result', path: '/school/:siteId/exams/exam-result', scope: 'school:read' },
+        { label: 'Marks Grade', path: '/school/:siteId/exams/marks-grade', scope: 'school:read' },
+        { label: 'Design Admit Card', path: '/school/:siteId/exams/design-admit-card', scope: 'school:write' },
+        { label: 'Print Admit Card', path: '/school/:siteId/exams/print-admit-card', scope: 'school:read' },
+        { label: 'Design Marksheet', path: '/school/:siteId/exams/design-marksheet', scope: 'school:write' },
+        { label: 'Print Marksheet', path: '/school/:siteId/exams/print-marksheet', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Fees & Finance', icon: 'Wallet', scope: 'school:write', children: [
-      { label: 'Collect Fees', path: '/school/:siteId/finance/collect' },
-      { label: 'Search Payments / Due Fees', path: '/school/:siteId/finance/search' },
-      { label: 'Fees Master / Group / Type', path: '/school/:siteId/finance/fees-config' },
-      { label: 'Discounts / Carry Forward', path: '/school/:siteId/finance/discounts' },
-      { label: 'Fees Reminder', path: '/school/:siteId/finance/reminders' },
-      { label: 'Income (Add/Search/Heads)', path: '/school/:siteId/finance/income' },
-      { label: 'Expenses (Add/Search/Heads)', path: '/school/:siteId/finance/expenses' },
+    label: 'Online Examinations',
+    children: [
+        { label: 'Online Exam', path: '/school/:siteId/online-exams/online-exam', scope: 'school:read' },
+        { label: 'Question Bank', path: '/school/:siteId/online-exams/question-bank', scope: 'school:read' },
+        { label: 'Online Exam Result', path: '/school/:siteId/online-exams/online-exam-result', scope: 'school:read' },
     ]
   },
-
-  {
-    label: 'Attendance', icon: 'CalendarCheck', children: [
-      { label: 'Student Attendance', path: '/school/:siteId/attendance/mark' },
-      { label: 'Attendance by Date', path: '/school/:siteId/attendance/by-date' },
-      { label: 'Attendance Records', path: '/school/:siteId/attendance/records' },
-      { label: 'Approve Leave', path: '/school/:siteId/attendance/leave-approval' },
+   {
+    label: 'Fees Collection',
+    children: [
+        { label: 'Collect Fees', path: '/school/:siteId/fees', scope: 'school:write' },
+        { label: 'Search Payments', path: '/school/:siteId/fees/search-payments', scope: 'school:read' },
+        { label: 'Fees Master', path: '/school/:siteId/fees/fees-master', scope: 'school:read' },
+        { label: 'Fees Reminder', path: '/school/:siteId/fees/fees-reminder', scope: 'school:read' },
+        { label: 'Discounts', path: '/school/:siteId/fees/discounts', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Examinations', icon: 'ClipboardList', children: [
-      { label: 'Exam Group / Schedule', path: '/school/:siteId/exams/schedule' },
-      { label: 'Exam Result', path: '/school/:siteId/exams/results' },
-      { label: 'Design / Print Admit Card', path: '/school/:siteId/exams/admit-cards' },
-      { label: 'Design / Print Marksheet', path: '/school/:siteId/exams/marksheets' },
-      { label: 'Marks Grade', path: '/school/:siteId/exams/grades' },
+    label: 'Finance',
+    children: [
+        { label: 'Income', path: '/school/:siteId/finance/income', scope: 'school:read' },
+        { label: 'Expenses', path: '/school/:siteId/finance/expenses', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Online Examinations', icon: 'MonitorPlay', children: [
-      { label: 'Online Exam', path: '/school/:siteId/online-exams' },
-      { label: 'Question Bank', path: '/school/:siteId/online-exams/questions' },
-      { label: 'Online Exam Result', path: '/school/:siteId/online-exams/results' },
+    label: 'Human Resource',
+    children: [
+        { label: 'Staff Directory', path: '/school/:siteId/faculty', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Academics', icon: 'BookOpen', children: [
-      { label: 'Class Timetable', path: '/school/:siteId/academics/class-timetable' },
-      { label: 'Teachers Timetable', path: '/school/:siteId/academics/teacher-timetable' },
-      { label: 'Assign Class Teacher', path: '/school/:siteId/academics/assign-class-teacher' },
-      { label: 'Promote Students', path: '/school/:siteId/academics/promotions' },
-      { label: 'Subject Group / Subjects', path: '/school/:siteId/academics/subjects' },
-      { label: 'Class / Sections', path: '/school/:siteId/academics/classes' },
+    label: 'Homework',
+    path: '/school/:siteId/homework',
+    scope: 'school:read',
+  },
+  {
+    label: 'Communicate',
+    children: [
+        { label: 'Notice Board', path: '/school/:siteId/communicate/notice-board', scope: 'school:read' },
+        { label: 'Send Message', path: '/school/:siteId/communicate/send-message', scope: 'school:write' },
+        { label: 'Communication Logs', path: '/school/:siteId/communicate/logs', scope: 'school:read' },
     ]
   },
-
-  { label: 'Homework', icon: 'NotebookPen', path: '/school/:siteId/homework' },
-
-  {
-    label: 'Library', icon: 'Library', children: [
-      { label: 'Book List', path: '/school/:siteId/library/books' },
-      { label: 'Issue / Return', path: '/school/:siteId/library/circulation' },
-      { label: 'Add Student / Staff Member', path: '/school/:siteId/library/members' },
-      { label: 'Digital (eBooks / Audio / Video)', path: '/school/:siteId/library/digital' },
-      { label: 'Catch-Up Classes', path: '/school/:siteId/library/catchup' },
+   {
+    label: 'Library',
+    children: [
+        { label: 'Book List', path: '/school/:siteId/library/book-list', scope: 'school:read' },
+        { label: 'Issue / Return', path: '/school/:siteId/library/issue-return', scope: 'school:write' },
+        { label: 'Add Member', path: '/school/:siteId/library/add-member', scope: 'school:write' },
+        { label: 'Digital Library', path: '/school/:siteId/library/digital', scope: 'school:read' },
+        { label: 'Catch-Up Classes', path: '/school/:siteId/library/catchup', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Download Center', icon: 'Download', children: [
-      { label: 'Upload Content', path: '/school/:siteId/downloads/content' },
-      { label: 'Assignments', path: '/school/:siteId/downloads/assignments' },
-      { label: 'Study Material', path: '/school/:siteId/downloads/study-material' },
-      { label: 'Syllabus', path: '/school/:siteId/downloads/syllabus' },
-      { label: 'Other Downloads', path: '/school/:siteId/downloads/others' },
+    label: 'Inventory',
+    children: [
+        { label: 'Add Stock', path: '/school/:siteId/inventory/add-stock', scope: 'school:write' },
+        { label: 'Issue Item', path: '/school/:siteId/inventory/issue-item', scope: 'school:write' },
+        { label: 'Inventory Setup', path: '/school/:siteId/inventory/setup', scope: 'school:write' },
     ]
   },
-
   {
-    label: 'Communicate', icon: 'Megaphone', children: [
-      { label: 'Notice Board', path: '/school/:siteId/comms/notices' },
-      { label: 'Send Email / SMS', path: '/school/:siteId/comms/send' },
-      { label: 'Logs', path: '/school/:siteId/comms/logs' },
+    label: 'Transport',
+    children: [
+        { label: 'Routes', path: '/school/:siteId/transport/routes', scope: 'school:read' },
+        { label: 'Vehicles', path: '/school/:siteId/transport/vehicles', scope: 'school:read' },
+        { label: 'Assign Vehicle', path: '/school/:siteId/transport/assign-vehicle', scope: 'school:write' },
+        { label: 'Vehicle Requests', path: '/school/:siteId/transport/vehicle-requests', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Live Classes', icon: 'Video', children: [
-      { label: 'Zoom (Classes/Meetings/Reports/Setting)', path: '/school/:siteId/live/zoom' },
-      { label: 'Gmeet (Classes/Meetings/Reports/Setting)', path: '/school/:siteId/live/gmeet' },
-      { label: 'Own Live (Integrated)', path: '/school/:siteId/live/classroom' }, // your custom SFU
+    label: 'Hostel',
+    children: [
+        { label: 'Hostels', path: '/school/:siteId/hostel/hostels', scope: 'school:read' },
+        { label: 'Room Types', path: '/school/:siteId/hostel/room-type', scope: 'school:read' },
+        { label: 'Rooms', path: '/school/:siteId/hostel/rooms', scope: 'school:read' },
+        { label: 'Allocate Room', path: '/school/:siteId/hostel/allocate-room', scope: 'school:write' },
     ]
   },
-
-  {
-    label: 'Inventory', icon: 'Package', children: [
-      { label: 'Issue Item', path: '/school/:siteId/inventory/issue' },
-      { label: 'Add Stock / Item', path: '/school/:siteId/inventory/stock' },
-      { label: 'Category / Store / Supplier', path: '/school/:siteId/inventory/config' },
+   {
+    label: 'Certificate',
+    children: [
+        { label: 'Student Certificate', path: '/school/:siteId/certificate/student-certificate', scope: 'school:write' },
+        { label: 'Generate Certificate', path: '/school/:siteId/certificate/generate-certificate', scope: 'school:write' },
+        { label: 'Student ID Card', path: '/school/:siteId/certificate/student-id-card', scope: 'school:write' },
+        { label: 'Staff ID Card', path: '/school/:siteId/certificate/staff-id-card', scope: 'school:write' },
     ]
   },
-
   {
-    label: 'Transport', icon: 'BusFront', children: [
-      { label: 'Routes', path: '/school/:siteId/transport/routes' },
-      { label: 'Vehicles', path: '/school/:siteId/transport/vehicles' },
-      { label: 'Assign Vehicle', path: '/school/:siteId/transport/assign' },
-      { label: 'Vehicle Requests & Approval', path: '/school/:siteId/transport/requests' },
+    label: 'Alumni',
+    children: [
+        { label: 'Manage Alumni', path: '/school/:siteId/alumni/manage', scope: 'school:read' },
+        { label: 'Events', path: '/school/:siteId/alumni/events', scope: 'school:read' },
     ]
   },
-
   {
-    label: 'Hostel', icon: 'BedDouble', children: [
-      { label: 'Hostel', path: '/school/:siteId/hostel/blocks' },
-      { label: 'Room Type', path: '/school/:siteId/hostel/room-types' },
-      { label: 'Rooms', path: '/school/:siteId/hostel/rooms' },
-    ]
-  },
-
-  {
-    label: 'Certificate', icon: 'Award', children: [
-      { label: 'Student/Staff Certificates', path: '/school/:siteId/certificates' },
-      { label: 'Generate & Print', path: '/school/:siteId/certificates/batch' },
-      { label: 'ID Cards (Student/Staff)', path: '/school/:siteId/certificates/id-cards' },
-    ]
-  },
-
-  {
-    label: 'Alumni', icon: 'UsersRound', children: [
-      { label: 'Manage Alumni', path: '/school/:siteId/alumni' },
-      { label: 'Events', path: '/school/:siteId/alumni/events' },
-    ]
-  },
-
-  {
-    label: 'Front CMS', icon: 'Globe', scope: 'school:admin', children: [
-      { label: 'Event', path: '/school/:siteId/cms/events' },
-      { label: 'Gallery', path: '/school/:siteId/cms/gallery' },
-      { label: 'News', path: '/school/:siteId/cms/news' },
-      { label: 'Media Manager', path: '/school/:siteId/cms/media' },
-      { label: 'Pages', path: '/school/:siteId/cms/pages' },
-      { label: 'Menus', path: '/school/:siteId/cms/menus' },
-      { label: 'Banner Images', path: '/school/:siteId/cms/banners' },
-    ]
-  },
-
-  {
-    label: 'Reports', icon: 'BarChart3', children: [
-      { label: 'Student', path: '/school/:siteId/reports/students' },
-      { label: 'Finance', path: '/school/:siteId/reports/finance' },
-      { label: 'Attendance', path: '/school/:siteId/reports/attendance' },
-      { label: 'Examinations', path: '/school/:siteId/reports/exams' },
-      { label: 'Lesson Plan', path: '/school/:siteId/reports/lesson-plan' },
-      { label: 'HR', path: '/school/:siteId/reports/hr' },
-      { label: 'Library', path: '/school/:siteId/reports/library' },
-      { label: 'Inventory', path: '/school/:siteId/reports/inventory' },
-      { label: 'Transport', path: '/school/:siteId/reports/transport' },
-      { label: 'Hostel', path: '/school/:siteId/reports/hostel' },
-      { label: 'Alumni', path: '/school/:siteId/reports/alumni' },
-      { label: 'User Log', path: '/school/:siteId/reports/user-log' },
-      { label: 'Audit Trail', path: '/school/:siteId/reports/audit' },
-    ]
-  },
-
-  {
-    label: 'System Settings', icon: 'Settings', scope: 'school:admin', children: [
-      { label: 'General / Session / Notification', path: '/school/:siteId/settings/general' },
-      { label: 'SMS / Email / Payment Methods', path: '/school/:siteId/settings/integrations' },
-      { label: 'Print Header & Footer', path: '/school/:siteId/settings/print' },
-      { label: 'Front CMS Setting', path: '/school/:siteId/settings/cms' },
-      { label: 'Roles & Permissions', path: '/school/:siteId/settings/rbac' },
-      { label: 'Backup / Restore', path: '/school/:siteId/settings/backup' },
-      { label: 'Languages / Users / Modules', path: '/school/:siteId/settings/users-modules' },
-      { label: 'Custom Fields / Captcha', path: '/school/:siteId/settings/customization' },
-      { label: 'System Fields / Student Profile Update', path: '/school/:siteId/settings/system-fields' },
-      { label: 'File Types / System Update', path: '/school/:siteId/settings/system-update' },
+    label: 'Reports',
+    children: [
+        { label: 'Student Report', path: '/school/:siteId/reports/student-report', scope: 'school:admin' },
+        { label: 'Finance Report', path: '/school/:siteId/reports/finance-report', scope: 'school:admin' },
+        { label: 'User Log', path: '/school/:siteId/reports/user-log', scope: 'school:admin' },
+        { label: 'Audit Trail', path: '/school/:siteId/reports/audit-trail', scope: 'school:admin' },
     ]
   },
 ];

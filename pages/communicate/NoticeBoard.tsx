@@ -105,10 +105,11 @@ const NoticeBoard: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
 
-    const canRead = can('read', 'communicate.notices', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'communicate.notices', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'communicate.notices', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'communicate.notices', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canCreate = can('school:write');
+    const canUpdate = can('school:write');
+    const canDelete = can('school:write');
 
     // Data Queries
     const { data: notices, isLoading: l1 } = useQuery<Notice[], Error>({ queryKey: ['notices', siteId], queryFn: () => noticeApi.get(siteId!), enabled: canRead });

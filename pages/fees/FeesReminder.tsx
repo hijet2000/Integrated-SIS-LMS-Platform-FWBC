@@ -21,7 +21,8 @@ const FeesReminder: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('send');
 
-    const canRead = can('read', 'fees.reminders', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canRead = can('school:read');
 
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to manage fee reminders." />;
@@ -53,7 +54,8 @@ const SendReminderTab: React.FC = () => {
     const [channel, setChannel] = useState<'SMS' | 'Email'>('SMS');
     const [message, setMessage] = useState("Dear Parent, this is a reminder that your fee of {{due_amount}} is pending. Please pay by the due date.");
 
-    const canCreate = can('create', 'fees.reminders', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canCreate = can('school:write');
 
     const { data: students = [], isLoading: isLoadingStudents } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!) });
     const { data: invoices = [], isLoading: isLoadingInvoices } = useQuery<FeeInvoice[], Error>({ queryKey: ['invoices', siteId], queryFn: () => getInvoices(siteId!) });

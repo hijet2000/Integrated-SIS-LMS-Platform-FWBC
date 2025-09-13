@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -84,7 +85,8 @@ const AddStock: React.FC = () => {
     const [isReceiveModalOpen, setReceiveModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
-    const canManage = can('update', 'inventory', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: items = [], isLoading: l1 } = useQuery<InventoryItem[], Error>({ queryKey: ['inventoryItems', siteId], queryFn: () => inventoryItemApi.get(siteId!) });
     const { data: categories = [], isLoading: l2 } = useQuery<ItemCategory[], Error>({ queryKey: ['itemCategories', siteId], queryFn: () => itemCategoryApi.get(siteId!) });

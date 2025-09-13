@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -71,7 +72,8 @@ const Setup: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<CategoryKey>('categories');
 
-    const canManage = can('update', 'inventory', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
     
     const tabs: { key: CategoryKey; label: string }[] = [
         { key: 'categories', label: 'Item Categories' },

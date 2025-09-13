@@ -33,8 +33,9 @@ const DisabledStudents: React.FC = () => {
         status: 'all',
     });
 
-    const canRead = can('read', 'school.students', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'school.students', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan calls to use a single scope string.
+    const canRead = can('school:read');
+    const canUpdate = can('school:write');
     
     const { data: students, isLoading: isLoadingStudents, isError, error } = useQuery<Student[], Error>({
         queryKey: ['students', siteId],

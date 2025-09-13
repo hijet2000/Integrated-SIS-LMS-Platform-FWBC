@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -60,7 +61,8 @@ const Vehicles: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-    const canManage = can('update', 'transport', { kind: 'site', id: siteId! });
+    // FIX: Corrected useCan call to use a single scope string.
+    const canManage = can('school:write');
 
     const { data: vehicles, isLoading, isError, error } = useQuery<Vehicle[], Error>({
         queryKey: ['vehicles', siteId],
