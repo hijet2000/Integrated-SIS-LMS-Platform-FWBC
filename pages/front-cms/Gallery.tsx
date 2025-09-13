@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -24,7 +23,6 @@ const Gallery: React.FC = () => {
     const [isPhotoManagerOpen, setPhotoManagerOpen] = useState(false);
     const [selectedAlbum, setSelectedAlbum] = useState<CmsAlbum | null>(null);
     
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
     const canManage = can('school:write');
 
     const { data: albums = [], isLoading: l1 } = useQuery<CmsAlbum[], Error>({ queryKey: ['cmsAlbums', siteId], queryFn: () => cmsAlbumApi.get(siteId!) });
@@ -85,10 +83,8 @@ const Gallery: React.FC = () => {
                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {albums.map(album => (
                             <Card key={album.id}>
-                                {/* FIX: Property 'title' does not exist on type 'CmsAlbum'. Use 'name' instead. */}
                                 <img src={album.coverImageUrl} alt={album.name} className="w-full h-40 object-cover" />
                                 <CardHeader>
-                                    {/* FIX: Property 'title' does not exist on type 'CmsAlbum'. Use 'name' instead. */}
                                     <h3 className="font-bold">{album.name}</h3>
                                     <p className="text-sm text-gray-500">{album.description}</p>
                                 </CardHeader>
@@ -105,12 +101,28 @@ const Gallery: React.FC = () => {
                 ) : <EmptyState title="No Albums Found" message="Create a new album to start adding photos." onAction={canManage ? () => setAlbumModalOpen(true) : undefined} actionText="Create Album" />
             )}
             
-            <Modal isOpen={isAlbumModalOpen} onClose={() => setAlbumModalOpen(false)} title={selectedAlbum ? 'Edit Album' : 'Create Album'}>
-                <AlbumForm album={selectedAlbum} onSave={handleSaveAlbum} onCancel={() => setAlbumModalOpen(false)} isSaving={addAlbumMutation.isPending || updateAlbumMutation.isPending} />
+            <Modal 
+                isOpen={isAlbumModalOpen} 
+                onClose={() => setAlbumModalOpen(false)} 
+                title={selectedAlbum ? 'Edit Album' : 'Create Album'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setAlbumModalOpen(false)}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="album-form" 
+                            className="ml-2"
+                            isLoading={addAlbumMutation.isPending || updateAlbumMutation.isPending}
+                        >
+                            Save Album
+                        </Button>
+                    </>
+                }
+            >
+                <AlbumForm album={selectedAlbum} onSave={handleSaveAlbum} />
             </Modal>
             
             {selectedAlbum && (
-                 // FIX: Property 'title' does not exist on type 'CmsAlbum'. Use 'name' instead.
                  <Modal isOpen={isPhotoManagerOpen} onClose={() => setPhotoManagerOpen(false)} title={`Manage: ${selectedAlbum.name}`}>
                     <PhotoManager album={selectedAlbum} photos={photos.filter(p => p.albumId === selectedAlbum.id)} />
                 </Modal>
@@ -120,15 +132,13 @@ const Gallery: React.FC = () => {
 };
 
 // --- Album Form ---
-const AlbumForm: React.FC<{ album: CmsAlbum | null, onSave: (data: any) => void, onCancel: () => void, isSaving: boolean }> = ({ album, onSave, onCancel, isSaving }) => {
-    // FIX: Property 'title' does not exist on type 'CmsAlbum'. Use 'name' instead.
+const AlbumForm: React.FC<{ album: CmsAlbum | null, onSave: (data: any) => void }> = ({ album, onSave }) => {
     const [form, setForm] = useState({ name: album?.name ?? '', description: album?.description ?? '', coverImageUrl: album?.coverImageUrl ?? 'https://via.placeholder.com/400x300/cccccc/1a202c?Text=New+Album' });
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
-            {/* FIX: Property 'title' does not exist on type 'CmsAlbum'. Use 'name' instead. */}
+        <form id="album-form" onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
             <div><label>Album Name</label><input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="w-full rounded-md" /></div>
             <div><label>Description</label><textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="w-full rounded-md" rows={3}/></div>
-            <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={onCancel}>Cancel</Button><Button type="submit" isLoading={isSaving}>Save Album</Button></div>
+            <button type="submit" className="hidden"/>
         </form>
     );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -29,7 +28,7 @@ const ItemForm: React.FC<{ item?: SetupItem | null; onSave: (data: any) => void;
     const [name, setName] = useState(item?.name || '');
     const [description, setDescription] = useState(item?.description || '');
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
+        <form id="setup-item-form" onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
             <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
             <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} className="w-full rounded-md"/></div>
             <button type="submit" className="hidden"/>
@@ -59,9 +58,25 @@ const SetupCategoryTab: React.FC<{ categoryKey: CategoryKey; siteId: string; can
                     <tbody>{items?.map(item => (<tr key={item.id}><td className="p-2 font-medium">{item.name}</td><td className="p-2 text-right space-x-2">{canManage && <><Button size="sm" variant="secondary" onClick={() => { setSelectedItem(item); setIsModalOpen(true); }}>Edit</Button><Button size="sm" variant="danger" onClick={() => deleteMutation.mutate(item.id)}>Delete</Button></>}</td></tr>))}</tbody>
                 </table>
             )}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedItem ? `Edit ${config.title}` : `Add ${config.title}`}>
+            <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title={selectedItem ? `Edit ${config.title}` : `Add ${config.title}`}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="setup-item-form" 
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
                 <ItemForm item={selectedItem} onSave={handleSave} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save</Button></div>
             </Modal>
         </div>
     );

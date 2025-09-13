@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -24,10 +23,9 @@ const statusColors: { [key in LibraryMemberStatus]: string } = {
 const MemberForm: React.FC<{
     member?: LibraryMember | null;
     onSave: (data: any) => void;
-    onCancel: () => void;
     isSaving: boolean;
     users: {id: string, name: string, type: 'Student' | 'Teacher'}[];
-}> = ({ member, onSave, onCancel, users }) => {
+}> = ({ member, onSave, users }) => {
     const [formState, setFormState] = useState({
         userId: member?.userId ?? '',
         libraryCardNo: member?.libraryCardNo ?? `LIB-${Date.now().toString().slice(-6)}`,
@@ -43,7 +41,7 @@ const MemberForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="member-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label>User (Student/Teacher)</label>
                 <select value={formState.userId} onChange={e => setFormState(p=>({...p, userId: e.target.value}))} required className="w-full rounded-md" disabled={!!member}>
@@ -63,10 +61,7 @@ const MemberForm: React.FC<{
                     <option value="Inactive">Inactive</option>
                 </select>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-                <Button variant="secondary" type="button" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Member</Button>
-            </div>
+            <button type="submit" className="hidden"/>
         </form>
     );
 };
@@ -139,8 +134,30 @@ const AddMember: React.FC = () => {
                     ) : <EmptyState title="No Members Found" message="Add a student or teacher as a library member to get started." />}
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedMember ? 'Edit Member' : 'Add Member'}>
-                <MemberForm member={selectedMember} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} users={availableUsers} />
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedMember ? 'Edit Member' : 'Add Member'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="member-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save Member
+                        </Button>
+                    </>
+                }
+            >
+                <MemberForm
+                    member={selectedMember}
+                    onSave={handleSave}
+                    isSaving={addMutation.isPending || updateMutation.isPending}
+                    users={availableUsers}
+                />
             </Modal>
         </div>
     );

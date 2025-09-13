@@ -68,6 +68,7 @@ const ManageAlumni: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
     const [filters, setFilters] = useState({ searchTerm: '', year: 'all' });
+    const [sortOrder, setSortOrder] = useState('name_asc');
 
     const canManage = can('school:write');
 
@@ -85,11 +86,27 @@ const ManageAlumni: React.FC = () => {
     
     const filteredAlumni = useMemo(() => {
         const term = filters.searchTerm.toLowerCase();
-        return alumni.filter(a => 
+        let filtered = alumni.filter(a => 
             (filters.year === 'all' || a.graduationYear === parseInt(filters.year)) &&
             (!term || a.name.toLowerCase().includes(term) || a.occupation?.toLowerCase().includes(term))
         );
-    }, [alumni, filters]);
+        
+        return filtered.sort((a, b) => {
+            switch (sortOrder) {
+                case 'name_asc':
+                    return a.name.localeCompare(b.name);
+                case 'name_desc':
+                    return b.name.localeCompare(a.name);
+                case 'year_desc':
+                    return b.graduationYear - a.graduationYear;
+                case 'year_asc':
+                    return a.graduationYear - b.graduationYear;
+                default:
+                    return 0;
+            }
+        });
+
+    }, [alumni, filters, sortOrder]);
 
     const isLoading = l1 || l2;
 
@@ -98,12 +115,18 @@ const ManageAlumni: React.FC = () => {
             <PageHeader title="Manage Alumni" actions={canManage && <Button onClick={() => { setSelectedAlumni(null); setIsModalOpen(true); }}>Add Alumni</Button>} />
 
             <Card className="mb-6">
-                <CardHeader><h3 className="font-semibold">Filter Alumni</h3></CardHeader>
-                <CardContent className="flex gap-4">
-                    <input type="text" placeholder="Search by name or occupation..." value={filters.searchTerm} onChange={e => setFilters(f => ({...f, searchTerm: e.target.value}))} className="w-full md:w-1/3 rounded-md"/>
+                <CardHeader><h3 className="font-semibold">Filter & Sort Alumni</h3></CardHeader>
+                <CardContent className="flex flex-wrap items-center gap-4">
+                    <input type="text" placeholder="Search by name or occupation..." value={filters.searchTerm} onChange={e => setFilters(f => ({...f, searchTerm: e.target.value}))} className="w-full md:w-auto flex-grow rounded-md"/>
                     <select value={filters.year} onChange={e => setFilters(f => ({...f, year: e.target.value}))} className="rounded-md">
                         <option value="all">All Years</option>
                         {uniqueYears.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                    <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="rounded-md">
+                        <option value="name_asc">Sort by Name (A-Z)</option>
+                        <option value="name_desc">Sort by Name (Z-A)</option>
+                        <option value="year_desc">Sort by Year (Newest)</option>
+                        <option value="year_asc">Sort by Year (Oldest)</option>
                     </select>
                 </CardContent>
             </Card>

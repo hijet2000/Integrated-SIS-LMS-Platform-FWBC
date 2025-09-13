@@ -58,11 +58,16 @@ const EventForm: React.FC<{
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(event ? { ...event, ...form } : form as Omit<CmsEvent, 'id' | 'siteId'>);
+        const dataToSave = {
+            ...form,
+            startDate: new Date(form.startDate).toISOString(),
+            endDate: new Date(form.endDate).toISOString()
+        };
+        onSave(event ? { ...event, ...dataToSave } : dataToSave as Omit<CmsEvent, 'id' | 'siteId'>);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="cms-event-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2"><label>Event Title *</label><input name="title" value={form.title} onChange={handleChange} required className="w-full rounded-md"/></div>
                 <div><label>Start Date & Time *</label><input type="datetime-local" name="startDate" value={form.startDate} onChange={handleChange} required className="w-full rounded-md"/></div>
@@ -96,7 +101,6 @@ const CmsEvents: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<CmsEvent | null>(null);
     const [statusFilter, setStatusFilter] = useState<CmsEventStatus | 'all'>('all');
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
     const canManage = can('school:write');
 
     const { data: events = [], isLoading: l1 } = useQuery<CmsEvent[], Error>({ queryKey: ['cmsEvents', siteId], queryFn: () => cmsEventApi.get(siteId!) });
@@ -114,7 +118,7 @@ const CmsEvents: React.FC = () => {
     const updateMutation = useMutation({ mutationFn: (item: CmsEvent) => cmsEventApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => cmsEventApi.delete(id), ...mutationOptions });
     const handleSave = (item: any) => {
-        const payload = { ...item, createdBy: user!.id, createdAt: new Date().toISOString(), slug: item.title.toLowerCase().replace(/\s+/g, '-') };
+        const payload = { ...item, createdBy: user!.id, createdAt: new Date().toISOString(), publishedAt: new Date().toISOString(), slug: item.title.toLowerCase().replace(/\s+/g, '-') };
         selectedEvent ? updateMutation.mutate({ ...selectedEvent, ...payload }) : addMutation.mutate(payload);
     };
     
@@ -168,9 +172,25 @@ const CmsEvents: React.FC = () => {
                 ) : <EmptyState title="No Events Found" message="Create an event to engage with your community." onAction={canManage ? () => setIsModalOpen(true) : undefined} actionText="Create Event"/>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedEvent ? 'Edit Event' : 'Create Event'}>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedEvent ? 'Edit Event' : 'Create Event'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="cms-event-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save Event
+                        </Button>
+                    </>
+                }
+            >
                 <EventForm event={selectedEvent} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save Event</Button></div>
             </Modal>
         </div>
     );

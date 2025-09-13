@@ -104,6 +104,7 @@ const NoticeBoard: React.FC = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
+    const [sortOrder, setSortOrder] = useState('publishDate_desc');
 
     // FIX: Corrected useCan calls to use a single scope string.
     const canRead = can('school:read');
@@ -121,10 +122,10 @@ const NoticeBoard: React.FC = () => {
 
     const teacherMap = useMemo(() => new Map(teachers.map(t => [t.id, t.name])), [teachers]);
 
-    const filteredNotices = useMemo(() => {
+    const sortedAndFilteredNotices = useMemo(() => {
         if (!notices || !user) return [];
         const now = new Date().toISOString().split('T')[0];
-        return notices
+        const filtered = notices
             .filter(n => n.publishDate <= now && (!n.expiryDate || n.expiryDate >= now))
             .filter(n => {
                 if (user.role === 'school_admin' || user.role === 'super_admin') return true;
@@ -140,9 +141,29 @@ const NoticeBoard: React.FC = () => {
                         return false;
                     default: return false;
                 }
-            })
-            .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-    }, [notices, user, student]);
+            });
+            
+        const priorityOrder: Record<Priority, number> = {
+            'Urgent': 3,
+            'Regular': 2,
+            'Info': 1,
+        };
+
+        return filtered.sort((a, b) => {
+            switch (sortOrder) {
+                case 'publishDate_asc':
+                    return new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime();
+                case 'priority_desc':
+                    return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+                case 'priority_asc':
+                    return (priorityOrder[a.priority] || 0) - (priorityOrder[b.priority] || 0);
+                case 'publishDate_desc':
+                default:
+                    return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
+            }
+        });
+
+    }, [notices, user, student, sortOrder]);
 
     // Mutations
     const mutationOptions = {
@@ -174,13 +195,31 @@ const NoticeBoard: React.FC = () => {
             <PageHeader
                 title="Notice Board"
                 subtitle="View important announcements and updates from the school."
-                actions={canCreate && <Button onClick={() => { setSelectedNotice(null); setIsModalOpen(true); }}>Create Notice</Button>}
+                actions={
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <select
+                                id="sort-notices"
+                                aria-label="Sort notices"
+                                value={sortOrder}
+                                onChange={e => setSortOrder(e.target.value)}
+                                className="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm dark:bg-gray-800 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="publishDate_desc">Publish Date (Newest)</option>
+                                <option value="publishDate_asc">Publish Date (Oldest)</option>
+                                <option value="priority_desc">Priority (High to Low)</option>
+                                <option value="priority_asc">Priority (Low to High)</option>
+                            </select>
+                        </div>
+                        {canCreate && <Button onClick={() => { setSelectedNotice(null); setIsModalOpen(true); }}>Create Notice</Button>}
+                    </div>
+                }
             />
             {isLoading && <div className="flex justify-center p-8"><Spinner /></div>}
             {!isLoading && (
-                filteredNotices.length > 0 ? (
+                sortedAndFilteredNotices.length > 0 ? (
                     <div className="space-y-4">
-                        {filteredNotices.map(notice => (
+                        {sortedAndFilteredNotices.map(notice => (
                             <Card key={notice.id} className={`border-l-4 ${priorityColors[notice.priority].border} ${priorityColors[notice.priority].bg}`}>
                                 <CardHeader>
                                     <div className="flex justify-between items-start">

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -33,23 +32,26 @@ const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = 
     const addMutation = useMutation({ mutationFn: (item: any) => expenseHeadApi.add(item), ...mutationOptions });
     const updateMutation = useMutation({ mutationFn: (item: ExpenseHead) => expenseHeadApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => expenseHeadApi.delete(id), ...mutationOptions });
+    
+    const isMutating = addMutation.isPending || updateMutation.isPending;
 
     const handleSave = (itemData: any) => {
         selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
     };
-    
+
     if (isLoading) return <Spinner />;
     if (isError) return <ErrorState title="Error" message="Could not load expense heads." />;
-
+    
     return (
         <div>
             {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Expense Head</Button>}
-            <table className="min-w-full divide-y">
-                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y">
+            <table className="min-w-full divide-y dark:divide-gray-700">
+                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Description</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y dark:divide-gray-700">
                     {items?.map(item => (
                         <tr key={item.id}>
-                            <td className="px-6 py-4 font-medium">{item.name}</td>
+                            <td className="px-6 py-4">{item.name}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500">{item.description}</td>
                             <td className="px-6 py-4 text-right space-x-2">
                                 {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
                                 {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
@@ -58,20 +60,30 @@ const ExpenseHeadsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = 
                     ))}
                 </tbody>
             </table>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Expense Head' : 'Add Expense Head'}>
-                <ItemForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selected ? 'Edit Expense Head' : 'Add Expense Head'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button type="submit" form="expense-head-form" className="ml-2" isLoading={isMutating}>Save</Button>
+                    </>
+                }
+            >
+                <ItemForm item={selected} onSave={handleSave} />
             </Modal>
         </div>
     );
 };
-const ItemForm: React.FC<{item?: SetupItem | null, onSave: (data: any) => void, onCancel: () => void}> = ({ item, onSave, onCancel }) => {
+const ItemForm: React.FC<{item?: SetupItem | null, onSave: (data: any) => void }> = ({ item, onSave }) => {
     const [name, setName] = useState(item?.name || '');
     const [description, setDescription] = useState(item?.description || '');
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
-            <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
-            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md" rows={2}/></div>
-            <div className="flex justify-end space-x-2"><Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button><Button type="submit">Save</Button></div>
+        <form id="expense-head-form" onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
+            <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"/></div>
+            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600" rows={2}/></div>
+            <button type="submit" className="hidden">Save</button>
         </form>
     );
 };
@@ -121,13 +133,30 @@ const SearchExpenseTab: React.FC<{ siteId: string, can: (a: any) => boolean }> =
                     </tbody>
                 </table>
             ) : <EmptyState title="No Expenses Recorded" message="Add an expense record to get started." />}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Expense' : 'Add Expense'}>
-                <ExpenseForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} heads={heads} />
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selected ? 'Edit Expense' : 'Add Expense'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="expense-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <ExpenseForm item={selected} onSave={handleSave} heads={heads} />
             </Modal>
         </div>
     );
 };
-const ExpenseForm: React.FC<{item?: Expense | null, onSave: (data: any) => void, onCancel: () => void, heads: ExpenseHead[]}> = ({ item, onSave, onCancel, heads }) => {
+const ExpenseForm: React.FC<{item?: Expense | null, onSave: (data: any) => void, heads: ExpenseHead[]}> = ({ item, onSave, heads }) => {
     const [formState, setFormState] = useState({
         expenseHeadId: item?.expenseHeadId || '',
         name: item?.name || '',
@@ -138,7 +167,7 @@ const ExpenseForm: React.FC<{item?: Expense | null, onSave: (data: any) => void,
     const handleChange = (e: React.ChangeEvent<any>) => setFormState(p => ({...p, [e.target.name]: e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value}));
     
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
+        <form id="expense-form" onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label>Expense Head <span className="text-red-500">*</span></label><select name="expenseHeadId" value={formState.expenseHeadId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select Head</option>{heads.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}</select></div>
                 <div><label>Name / Reference <span className="text-red-500">*</span></label><input name="name" value={formState.name} onChange={handleChange} required className="w-full rounded-md"/></div>
@@ -147,7 +176,7 @@ const ExpenseForm: React.FC<{item?: Expense | null, onSave: (data: any) => void,
             </div>
             <div><label>Description</label><textarea name="description" value={formState.description} onChange={handleChange} rows={2} className="w-full rounded-md"/></div>
             <div><label>Attach Invoice/Receipt</label><input type="file" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/></div>
-            <div className="flex justify-end space-x-2"><Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button><Button type="submit">Save</Button></div>
+            <button type="submit" className="hidden">Save</button>
         </form>
     );
 };
@@ -157,7 +186,6 @@ const Expenses: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('search');
 
-    // FIX: Corrected useCan call to use a single scope string.
     const canRead = can('school:read');
 
     if (!canRead) {
