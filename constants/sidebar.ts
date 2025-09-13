@@ -1,12 +1,21 @@
-
 // FIX: Created constants/sidebar.ts to define the sidebar navigation structure.
 import type { NavItem } from '@/types/navigation';
 
 export const SCHOOL_SIDEBAR: NavItem[] = [
   {
-    label: 'Dashboard',
-    path: '/school/:siteId',
-    scope: 'school:read',
+    label: 'General',
+    children: [
+      {
+        label: 'Dashboard',
+        path: '/school/:siteId',
+        scope: 'school:read',
+      },
+      {
+        label: 'Homework',
+        path: '/school/:siteId/homework',
+        scope: 'school:read',
+      },
+    ],
   },
   {
     label: 'Academics',
@@ -86,11 +95,6 @@ export const SCHOOL_SIDEBAR: NavItem[] = [
     ]
   },
   {
-    label: 'Homework',
-    path: '/school/:siteId/homework',
-    scope: 'school:read',
-  },
-  {
     label: 'Communicate',
     children: [
         { label: 'Notice Board', path: '/school/:siteId/communicate/notice-board', scope: 'school:read' },
@@ -138,9 +142,10 @@ export const SCHOOL_SIDEBAR: NavItem[] = [
     label: 'Certificate',
     children: [
         { label: 'Student Certificate', path: '/school/:siteId/certificate/student-certificate', scope: 'school:write' },
-        { label: 'Generate Certificate', path: '/school/:siteId/certificate/generate-certificate', scope: 'school:write' },
-        { label: 'Student ID Card', path: '/school/:siteId/certificate/student-id-card', scope: 'school:write' },
-        { label: 'Staff ID Card', path: '/school/:siteId/certificate/staff-id-card', scope: 'school:write' },
+        { label: 'Staff Certificate', path: '/school/:siteId/certificate/staff-certificate', scope: 'school:write' },
+        { label: 'Design ID Card', path: '/school/:siteId/certificate/id-card-designer', scope: 'school:write' },
+        { label: 'Print Student ID Card', path: '/school/:siteId/certificate/student-id-card', scope: 'school:write' },
+        { label: 'Print Staff ID Card', path: '/school/:siteId/certificate/staff-id-card', scope: 'school:write' },
     ]
   },
   {

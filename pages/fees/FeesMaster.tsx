@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -15,7 +14,7 @@ import {
     feeMasterApi,
     getClassrooms,
 } from '@/services/sisApi';
-import type { FeeType, FeeGroup, FeeMaster, Classroom } from '@/types';
+import type { FeeType, FeeGroup, FeeMaster, Classroom, SetupItem } from '@/types';
 
 type CategoryKey = 'types' | 'groups' | 'masters';
 
@@ -30,6 +29,8 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ s
     const addMutation = useMutation({ mutationFn: (item: any) => feeTypeApi.add(item), ...mutationOptions });
     const updateMutation = useMutation({ mutationFn: (item: FeeType) => feeTypeApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => feeTypeApi.delete(id), ...mutationOptions });
+    
+    const isMutating = addMutation.isPending || updateMutation.isPending;
 
     const handleSave = (itemData: any) => {
         selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
@@ -41,9 +42,9 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ s
     return (
         <div>
             {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Type</Button>}
-            <table className="min-w-full divide-y">
+            <table className="min-w-full divide-y dark:divide-gray-700">
                  <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Description</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y">
+                <tbody className="bg-white dark:bg-gray-800 divide-y dark:divide-gray-700">
                     {items?.map(item => (
                         <tr key={item.id}>
                             <td className="px-6 py-4">{item.name}</td>
@@ -57,20 +58,20 @@ const FeeTypesTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ s
                 </tbody>
             </table>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Fee Type' : 'Add Fee Type'}
-                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} className="ml-2">Save</Button></>}
+                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button type="submit" form="fee-type-form" className="ml-2" isLoading={isMutating}>Save</Button></>}
             >
-                <FeeTypeForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
+                <FeeTypeForm item={selected} onSave={handleSave} />
             </Modal>
         </div>
     );
 };
-const FeeTypeForm: React.FC<{item?: FeeType | null, onSave: (data: any) => void, onCancel: () => void}> = ({ item, onSave, onCancel }) => {
+const FeeTypeForm: React.FC<{item?: FeeType | null, onSave: (data: any) => void }> = ({ item, onSave }) => {
     const [name, setName] = useState(item?.name || '');
     const [description, setDescription] = useState(item?.description || '');
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
-            <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
-            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md" rows={2}/></div>
+        <form id="fee-type-form" onSubmit={e => { e.preventDefault(); onSave({ name, description }); }} className="space-y-4">
+            <div><label>Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"/></div>
+            <div><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600" rows={2}/></div>
             <div className="hidden"><button type="submit">Save</button></div>
         </form>
     );
@@ -91,6 +92,8 @@ const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ 
     const updateMutation = useMutation({ mutationFn: (item: FeeGroup) => feeGroupApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => feeGroupApi.delete(id), ...mutationOptions });
 
+    const isMutating = addMutation.isPending || updateMutation.isPending;
+
     const handleSave = (itemData: any) => {
         selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
     };
@@ -101,9 +104,9 @@ const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ 
     return (
         <div>
             {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Group</Button>}
-            <table className="min-w-full divide-y">
+            <table className="min-w-full divide-y dark:divide-gray-700">
                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Included Fee Types</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y">
+                <tbody className="bg-white dark:bg-gray-800 divide-y dark:divide-gray-700">
                     {items?.map(item => (
                         <tr key={item.id}>
                             <td className="px-6 py-4">{item.name}</td>
@@ -117,14 +120,14 @@ const FeeGroupsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({ 
                 </tbody>
             </table>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Fee Group' : 'Add Fee Group'}
-                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} className="ml-2">Save</Button></>}
+                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button type="submit" form="fee-group-form" className="ml-2" isLoading={isMutating}>Save</Button></>}
             >
-                <FeeGroupForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} feeTypes={feeTypes} />
+                <FeeGroupForm item={selected} onSave={handleSave} feeTypes={feeTypes} />
             </Modal>
         </div>
     );
 };
-const FeeGroupForm: React.FC<{item?: FeeGroup | null, onSave: (data: any) => void, onCancel: () => void, feeTypes: FeeType[]}> = ({ item, onSave, onCancel, feeTypes }) => {
+const FeeGroupForm: React.FC<{item?: FeeGroup | null, onSave: (data: any) => void, feeTypes: FeeType[]}> = ({ item, onSave, feeTypes }) => {
     const [name, setName] = useState(item?.name || '');
     const [feeTypeIds, setFeeTypeIds] = useState<string[]>(item?.feeTypeIds || []);
 
@@ -133,9 +136,9 @@ const FeeGroupForm: React.FC<{item?: FeeGroup | null, onSave: (data: any) => voi
     };
 
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave({ name, feeTypeIds }); }} className="space-y-4">
-            <div><label>Group Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md"/></div>
-            <div><label>Include Fee Types</label><div className="mt-2 space-y-2 max-h-40 overflow-y-auto border p-2 rounded-md">{feeTypes.map(ft => <div key={ft.id}><label><input type="checkbox" checked={feeTypeIds.includes(ft.id)} onChange={() => handleFeeTypeChange(ft.id)} className="mr-2"/>{ft.name}</label></div>)}</div></div>
+        <form id="fee-group-form" onSubmit={e => { e.preventDefault(); onSave({ name, feeTypeIds }); }} className="space-y-4">
+            <div><label>Group Name</label><input value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"/></div>
+            <div><label>Include Fee Types</label><div className="mt-2 space-y-2 max-h-40 overflow-y-auto border p-2 rounded-md dark:border-gray-600">{feeTypes.map(ft => <div key={ft.id}><label className="flex items-center"><input type="checkbox" checked={feeTypeIds.includes(ft.id)} onChange={() => handleFeeTypeChange(ft.id)} className="mr-2"/>{ft.name}</label></div>)}</div></div>
             <div className="hidden"><button type="submit">Save</button></div>
         </form>
     );
@@ -160,6 +163,8 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({
     const updateMutation = useMutation({ mutationFn: (item: FeeMaster) => feeMasterApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => feeMasterApi.delete(id), ...mutationOptions });
 
+    const isMutating = addMutation.isPending || updateMutation.isPending;
+
     const handleSave = (itemData: any) => {
         selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
     };
@@ -170,9 +175,9 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({
     return (
         <div>
             {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Fee Master</Button>}
-            <table className="min-w-full divide-y">
+            <table className="min-w-full divide-y dark:divide-gray-700">
                 <thead><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Fee Group</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Class</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Amount</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Due Date</th><th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th></tr></thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y">
+                <tbody className="bg-white dark:bg-gray-800 divide-y dark:divide-gray-700">
                     {items?.map(item => (
                         <tr key={item.id}>
                             <td className="px-6 py-4">{feeGroupMap.get(item.feeGroupId)}</td>
@@ -188,15 +193,15 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({
                 </tbody>
             </table>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Fee Master' : 'Add Fee Master'}
-                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} className="ml-2">Save</Button></>}
+                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button type="submit" form="fee-master-form" className="ml-2" isLoading={isMutating}>Save</Button></>}
             >
-                <FeeMasterForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} feeGroups={feeGroups} classrooms={classrooms} />
+                <FeeMasterForm item={selected} onSave={handleSave} feeGroups={feeGroups} classrooms={classrooms} />
             </Modal>
         </div>
     );
 };
 
-const FeeMasterForm: React.FC<{item?: FeeMaster | null, onSave: (data: any) => void, onCancel: () => void, feeGroups: FeeGroup[], classrooms: Classroom[]}> = ({ item, onSave, onCancel, feeGroups, classrooms }) => {
+const FeeMasterForm: React.FC<{item?: FeeMaster | null, onSave: (data: any) => void, feeGroups: FeeGroup[], classrooms: Classroom[]}> = ({ item, onSave, feeGroups, classrooms }) => {
     const [formState, setFormState] = useState({
         feeGroupId: item?.feeGroupId || '',
         classroomId: item?.classroomId || '',
@@ -205,11 +210,11 @@ const FeeMasterForm: React.FC<{item?: FeeMaster | null, onSave: (data: any) => v
     });
     const handleChange = (e: React.ChangeEvent<any>) => setFormState(p => ({...p, [e.target.name]: e.target.value}));
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
-             <div><label>Fee Group</label><select name="feeGroupId" value={formState.feeGroupId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select Group</option>{feeGroups.map(fg => <option key={fg.id} value={fg.id}>{fg.name}</option>)}</select></div>
-             <div><label>Classroom</label><select name="classroomId" value={formState.classroomId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select Class</option>{classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-             <div><label>Amount</label><input type="number" name="amount" value={formState.amount} onChange={handleChange} required className="w-full rounded-md"/></div>
-             <div><label>Due Date</label><input type="date" name="dueDate" value={formState.dueDate} onChange={handleChange} required className="w-full rounded-md"/></div>
+        <form id="fee-master-form" onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
+             <div><label>Fee Group</label><select name="feeGroupId" value={formState.feeGroupId} onChange={handleChange} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"><option value="">Select Group</option>{feeGroups.map(fg => <option key={fg.id} value={fg.id}>{fg.name}</option>)}</select></div>
+             <div><label>Classroom</label><select name="classroomId" value={formState.classroomId} onChange={handleChange} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"><option value="">Select Class</option>{classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+             <div><label>Amount</label><input type="number" step="0.01" name="amount" value={formState.amount} onChange={handleChange} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"/></div>
+             <div><label>Due Date</label><input type="date" name="dueDate" value={formState.dueDate} onChange={handleChange} required className="w-full rounded-md mt-1 dark:bg-gray-900 dark:border-gray-600"/></div>
             <div className="hidden"><button type="submit">Save</button></div>
         </form>
     );
@@ -222,7 +227,6 @@ const FeesMaster: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<CategoryKey>('types');
 
-    // FIX: Corrected useCan call to use a single scope string.
     const canRead = can('school:read');
 
     if (!canRead) {
@@ -242,7 +246,7 @@ const FeesMaster: React.FC = () => {
             <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
                 <nav className="-mb-px flex space-x-6 overflow-x-auto">
                     {tabs.map(tab => (
-                        <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`${activeTab === tab.key ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
+                        <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`${activeTab === tab.key ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
                             {tab.label}
                         </button>
                     ))}

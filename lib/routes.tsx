@@ -17,7 +17,6 @@ const Grades = React.lazy(() => import('@/pages/sis/Grades'));
 const Attendance = React.lazy(() => import('@/pages/sis/Attendance'));
 const AttendanceRecords = React.lazy(() => import('@/pages/sis/AttendanceRecords'));
 const Academics = React.lazy(() => import('@/pages/academics/Academics'));
-const ClassesAndSections = React.lazy(() => import('@/pages/academics/ClassesAndSections'));
 const Subjects = React.lazy(() => import('@/pages/academics/Subjects'));
 const SubjectGroup = React.lazy(() => import('@/pages/academics/SubjectGroup'));
 const AssignTeacher = React.lazy(() => import('@/pages/academics/AssignTeacher'));
@@ -98,6 +97,7 @@ const AllocateRoom = React.lazy(() => import('@/pages/hostel/AllocateRoom'));
 
 // Certificate
 const StudentCertificate = React.lazy(() => import('@/pages/certificate/StudentCertificate'));
+const StaffCertificate = React.lazy(() => import('@/pages/certificate/StaffCertificate'));
 const GenerateCertificate = React.lazy(() => import('@/pages/certificate/GenerateCertificate'));
 const StudentIdCard = React.lazy(() => import('@/pages/certificate/StudentIdCard'));
 const StaffIdCard = React.lazy(() => import('@/pages/certificate/StaffIdCard'));
@@ -159,7 +159,7 @@ const routes: AppRoute[] = [
     { path: '/school/:siteId/grades', element: <Grades />, scope: 'school:read' },
     { path: '/school/:siteId/attendance', element: <Attendance />, scope: 'school:read' },
     { path: '/school/:siteId/attendance/records', element: <AttendanceRecords />, scope: 'school:read' },
-    { path: '/school/:siteId/academics/classes', element: <ClassesAndSections />, scope: 'school:read' },
+    { path: '/school/:siteId/academics/classes', element: <Academics />, scope: 'school:read' },
     { path: '/school/:siteId/academics/subjects', element: <Subjects />, scope: 'school:read' },
     { path: '/school/:siteId/academics/subject-group', element: <SubjectGroup />, scope: 'school:write' },
     { path: '/school/:siteId/academics/assign-teacher', element: <AssignTeacher />, scope: 'school:write' },
@@ -167,7 +167,7 @@ const routes: AppRoute[] = [
     { path: '/school/:siteId/academics/class-timetable', element: <ClassTimetable />, scope: 'school:read' },
     { path: '/school/:siteId/academics/teachers-timetable', element: <TeachersTimetable />, scope: 'school:read' },
 
-    // Student Management Routes
+    // Student Management
     { path: '/school/:siteId/student-admission', element: <StudentAdmission />, scope: 'school:write' },
     { path: '/school/:siteId/disabled-students', element: <DisabledStudents />, scope: 'school:read' },
     { path: '/school/:siteId/bulk-delete', element: <BulkDelete />, scope: 'school:write' },
@@ -240,6 +240,7 @@ const routes: AppRoute[] = [
 
     // Certificate
     { path: '/school/:siteId/certificate/student-certificate', element: <StudentCertificate />, scope: 'school:write' },
+    { path: '/school/:siteId/certificate/staff-certificate', element: <StaffCertificate />, scope: 'school:write' },
     { path: '/school/:siteId/certificate/generate-certificate', element: <GenerateCertificate />, scope: 'school:write' },
     { path: '/school/:siteId/certificate/student-id-card', element: <StudentIdCard />, scope: 'school:write' },
     { path: '/school/:siteId/certificate/staff-id-card', element: <StaffIdCard />, scope: 'school:write' },
