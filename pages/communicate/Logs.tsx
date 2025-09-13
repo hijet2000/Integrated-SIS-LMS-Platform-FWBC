@@ -136,4 +136,34 @@ const Logs: React.FC = () => {
                                                 <td className="px-6 py-4">{log.recipientsDescription}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 italic">"{log.messageSnippet}"</td>
                                                 <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[log.status]}`}>{log.status}</span></td>
-                                                <td className="px
+                                                <td className="px-6 py-4 text-right"><Button size="sm" variant="secondary" onClick={() => setViewingLog(log)}>View</Button></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : <EmptyState title="No Logs Found" message="No communication logs match your filters." />
+                    )}
+                </CardContent>
+            </Card>
+
+            <Modal isOpen={!!viewingLog} onClose={() => setViewingLog(null)} title="View Message Log">
+                {viewingLog && (
+                    <div className="space-y-4">
+                        <div><strong className="font-semibold">Recipient(s):</strong> {viewingLog.recipientsDescription}</div>
+                        <div><strong className="font-semibold">Subject:</strong> {viewingLog.subject || 'N/A'}</div>
+                        <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
+                            <p className="whitespace-pre-wrap text-sm">{viewingLog.fullMessage}</p>
+                        </div>
+                        {viewingLog.failureReason && (
+                             <div><strong className="font-semibold text-red-600">Failure Reason:</strong> {viewingLog.failureReason}</div>
+                        )}
+                    </div>
+                )}
+            </Modal>
+        </div>
+    );
+};
+
+// FIX: Add a default export to the component.
+export default Logs;
