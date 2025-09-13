@@ -43,7 +43,7 @@ const AlumniForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="alumni-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label>Full Name *</label><input name="name" value={form.name} onChange={handleChange} required className="w-full rounded-md"/></div>
                 <div><label>Graduation Year *</label><input type="number" name="graduationYear" value={form.graduationYear} onChange={handleChange} required className="w-full rounded-md"/></div>
@@ -69,7 +69,6 @@ const ManageAlumni: React.FC = () => {
     const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
     const [filters, setFilters] = useState({ searchTerm: '', year: 'all' });
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
     const canManage = can('school:write');
 
     const { data: alumni = [], isLoading: l1 } = useQuery<Alumni[], Error>({ queryKey: ['alumni', siteId], queryFn: () => alumniApi.get(siteId!) });
@@ -145,9 +144,31 @@ const ManageAlumni: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedAlumni ? 'Edit Alumni' : 'Add Alumni'}>
-                <AlumniForm alumni={selectedAlumni} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} classrooms={classrooms} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save</Button></div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedAlumni ? 'Edit Alumni' : 'Add Alumni'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="alumni-form" 
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <AlumniForm 
+                    alumni={selectedAlumni} 
+                    onSave={handleSave} 
+                    onCancel={() => setIsModalOpen(false)} 
+                    isSaving={addMutation.isPending || updateMutation.isPending} 
+                    classrooms={classrooms} 
+                />
             </Modal>
         </div>
     );

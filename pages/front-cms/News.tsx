@@ -51,7 +51,7 @@ const NewsForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="news-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2"><label>Title *</label><input name="title" value={form.title} onChange={handleChange} required className="w-full rounded-md"/></div>
                 <div className="md:col-span-2"><label>Summary</label><input name="summary" value={form.summary} onChange={handleChange} className="w-full rounded-md"/></div>
@@ -76,7 +76,6 @@ const CmsNews: React.FC = () => {
     const [selectedArticle, setSelectedArticle] = useState<CmsNews | null>(null);
     const [statusFilter, setStatusFilter] = useState<CmsNewsStatus | 'all'>('all');
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation and resolve the argument count error.
     const canManage = can('school:write');
 
     const { data: articles = [], isLoading: l1 } = useQuery<CmsNews[], Error>({ queryKey: ['cmsNews', siteId], queryFn: () => cmsNewsApi.get(siteId!) });
@@ -151,9 +150,30 @@ const CmsNews: React.FC = () => {
                 </CardContent>
             </Card>
             
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedArticle ? 'Edit Article' : 'Create Article'}>
-                <NewsForm article={selectedArticle} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save Article</Button></div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedArticle ? 'Edit Article' : 'Create Article'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="news-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save Article
+                        </Button>
+                    </>
+                }
+            >
+                <NewsForm
+                    article={selectedArticle}
+                    onSave={handleSave}
+                    onCancel={() => setIsModalOpen(false)}
+                    isSaving={addMutation.isPending || updateMutation.isPending}
+                />
             </Modal>
         </div>
     );

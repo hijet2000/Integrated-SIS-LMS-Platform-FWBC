@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -18,9 +17,9 @@ const MODE_OPTIONS: DispatchMode[] = ['Post', 'Courier', 'Hand Delivery', 'Other
 const DispatchForm: React.FC<{
     dispatch?: PostalDispatch | null;
     onSave: (dispatch: Omit<PostalDispatch, 'id' | 'siteId'> | PostalDispatch) => void;
+    // FIX: Added missing onCancel prop to align with usage and fix type error.
     onCancel: () => void;
-    isSaving: boolean;
-}> = ({ dispatch, onSave, onCancel }) => {
+}> = ({ dispatch, onSave }) => {
     const [formState, setFormState] = useState({
         toTitle: dispatch?.toTitle ?? '',
         referenceNo: dispatch?.referenceNo ?? '',
@@ -49,7 +48,7 @@ const DispatchForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="dispatch-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="block text-sm font-medium">To (Recipient) <span className="text-red-500">*</span></label><input type="text" name="toTitle" value={formState.toTitle} onChange={handleChange} required className="mt-1 w-full rounded-md"/></div>
                 <div><label className="block text-sm font-medium">Reference No.</label><input type="text" name="referenceNo" value={formState.referenceNo} onChange={handleChange} className="mt-1 w-full rounded-md"/></div>
@@ -61,7 +60,7 @@ const DispatchForm: React.FC<{
             </div>
             <div><label className="block text-sm font-medium">Address</label><textarea name="address" value={formState.address} onChange={handleChange} rows={2} className="mt-1 w-full rounded-md"/></div>
             <div><label className="block text-sm font-medium">Notes</label><textarea name="notes" value={formState.notes} onChange={handleChange} rows={2} className="mt-1 w-full rounded-md"/></div>
-            <div className="hidden"><button type="submit"/></div>
+            <button type="submit" className="hidden"/>
         </form>
     );
 };
@@ -75,7 +74,6 @@ const PostalDispatch: React.FC = () => {
     const [selectedDispatch, setSelectedDispatch] = useState<PostalDispatch | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // FIX: Corrected useCan calls to use a single scope string.
     const canCreate = can('school:write');
     const canUpdate = can('school:write');
     const canDelete = can('school:write');
@@ -160,9 +158,29 @@ const PostalDispatch: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
-             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedDispatch ? 'Edit Dispatch' : 'Add Dispatch'}>
-                <DispatchForm dispatch={selectedDispatch} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={isMutating} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save</Button></div>
+             <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title={selectedDispatch ? 'Edit Dispatch' : 'Add Dispatch'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="dispatch-form"
+                            className="ml-2"
+                            isLoading={isMutating}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <DispatchForm 
+                    dispatch={selectedDispatch} 
+                    onSave={handleSave} 
+                    onCancel={() => setIsModalOpen(false)} 
+                />
             </Modal>
         </div>
     );

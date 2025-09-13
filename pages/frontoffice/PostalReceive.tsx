@@ -18,9 +18,8 @@ const MODE_OPTIONS: DispatchMode[] = ['Post', 'Courier', 'Hand Delivery', 'Other
 const ReceiveForm: React.FC<{
     receive?: PostalReceive | null;
     onSave: (record: Omit<PostalReceive, 'id' | 'siteId'> | PostalReceive) => void;
-    onCancel: () => void;
     isSaving: boolean;
-}> = ({ receive, onSave, onCancel }) => {
+}> = ({ receive, onSave }) => {
     const [formState, setFormState] = useState({
         fromTitle: receive?.fromTitle ?? '',
         referenceNo: receive?.referenceNo ?? '',
@@ -46,7 +45,7 @@ const ReceiveForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="receive-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="block text-sm font-medium">From (Sender) <span className="text-red-500">*</span></label><input type="text" name="fromTitle" value={formState.fromTitle} onChange={handleChange} required className="mt-1 w-full rounded-md"/></div>
                 <div><label className="block text-sm font-medium">Reference No. <span className="text-red-500">*</span></label><input type="text" name="referenceNo" value={formState.referenceNo} onChange={handleChange} required className="mt-1 w-full rounded-md"/></div>
@@ -56,7 +55,7 @@ const ReceiveForm: React.FC<{
                 <div><label className="block text-sm font-medium">Document Type</label><input type="text" name="docType" placeholder="e.g., Letter, Parcel" value={formState.docType} onChange={handleChange} className="mt-1 w-full rounded-md"/></div>
             </div>
             <div><label className="block text-sm font-medium">Notes</label><textarea name="notes" value={formState.notes} onChange={handleChange} rows={2} className="mt-1 w-full rounded-md"/></div>
-            <div className="hidden"><button type="submit"/></div>
+            <button type="submit" className="hidden"/>
         </form>
     );
 };
@@ -70,7 +69,6 @@ const PostalReceive: React.FC = () => {
     const [selectedRecord, setSelectedRecord] = useState<PostalReceive | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // FIX: Corrected useCan calls to use a single scope string.
     const canCreate = can('school:write');
     const canUpdate = can('school:write');
     const canDelete = can('school:write');
@@ -165,9 +163,29 @@ const PostalReceive: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
-             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedRecord ? 'Edit Receive Record' : 'Add Receive Record'}>
-                <ReceiveForm receive={selectedRecord} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={isMutating} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save</Button></div>
+             <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title={selectedRecord ? 'Edit Receive Record' : 'Add Receive Record'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="receive-form" 
+                            className="ml-2"
+                            isLoading={isMutating}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <ReceiveForm 
+                    receive={selectedRecord} 
+                    onSave={handleSave} 
+                    isSaving={isMutating}
+                />
             </Modal>
         </div>
     );
