@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -31,7 +30,7 @@ const ItemForm: React.FC<{
     const handleChange = (e: React.ChangeEvent<any>) => setForm(p => ({ ...p, [e.target.name]: e.target.type === 'number' ? parseInt(e.target.value) : e.target.value }));
 
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
+        <form id="item-form" onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div><label>Item Name *</label><input name="name" value={form.name} onChange={handleChange} required className="w-full rounded-md" /></div>
                 <div><label>Category *</label><select name="categoryId" value={form.categoryId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
@@ -61,7 +60,7 @@ const ReceiveForm: React.FC<{
     const handleChange = (e: React.ChangeEvent<any>) => setForm(p => ({ ...p, [e.target.name]: e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value }));
 
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
+        <form id="receive-form" onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                  <div><label>Item *</label><select name="itemId" value={form.itemId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select</option>{items.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select></div>
                  <div><label>Store Location *</label><select name="storeId" value={form.storeId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select</option>{stores.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
@@ -85,7 +84,6 @@ const AddStock: React.FC = () => {
     const [isReceiveModalOpen, setReceiveModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
-    // FIX: Corrected useCan call to use a single scope string.
     const canManage = can('school:write');
 
     const { data: items = [], isLoading: l1 } = useQuery<InventoryItem[], Error>({ queryKey: ['inventoryItems', siteId], queryFn: () => inventoryItemApi.get(siteId!) });
@@ -146,13 +144,45 @@ const AddStock: React.FC = () => {
                 </Card>
             )}
 
-            <Modal isOpen={isItemModalOpen} onClose={() => setItemModalOpen(false)} title={selectedItem ? 'Edit Item' : 'Add Item'}>
+            <Modal
+                isOpen={isItemModalOpen}
+                onClose={() => setItemModalOpen(false)}
+                title={selectedItem ? 'Edit Item' : 'Add Item'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setItemModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="item-form"
+                            className="ml-2"
+                            isLoading={addItemMutation.isPending || updateItemMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
                 <ItemForm item={selectedItem} onSave={handleSaveItem} categories={categories} />
-                <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setItemModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save</Button></div>
             </Modal>
-             <Modal isOpen={isReceiveModalOpen} onClose={() => setReceiveModalOpen(false)} title="Receive New Stock">
+             <Modal
+                isOpen={isReceiveModalOpen}
+                onClose={() => setReceiveModalOpen(false)}
+                title="Receive New Stock"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setReceiveModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="receive-form"
+                            className="ml-2"
+                            isLoading={receiveMutation.isPending}
+                        >
+                            Receive
+                        </Button>
+                    </>
+                }
+             >
                 <ReceiveForm onSave={handleReceiveStock} items={items} suppliers={suppliers} stores={stores} />
-                <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setReceiveModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Receive</Button></div>
             </Modal>
         </div>
     );

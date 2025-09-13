@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -30,15 +29,19 @@ const IssueForm: React.FC<{
     });
     const handleChange = (e: React.ChangeEvent<any>) => setForm(p => ({ ...p, [e.target.name]: e.target.type === 'number' ? parseInt(e.target.value) : e.target.value }));
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(form);
+    };
+
     return (
-        <form onSubmit={e => { e.preventDefault(); onSave(form); }} className="space-y-4">
+        <form id="issue-item-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                  <div><label>Item *</label><select name="itemId" value={form.itemId} onChange={handleChange} required className="w-full rounded-md"><option value="">Select</option>{items.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select></div>
                  <div><label>Issue To *</label><select name="issueTo" value={form.issueTo} onChange={handleChange} required className="w-full rounded-md"><option value="">Select</option>{users.map(u=><option key={u.id} value={u.id}>{u.name}</option>)}</select></div>
                  <div><label>Quantity *</label><input type="number" name="quantity" value={form.quantity} min="1" onChange={handleChange} required className="w-full rounded-md"/></div>
                  <div><label>Date *</label><input type="date" name="issueDate" value={form.issueDate} onChange={handleChange} required className="w-full rounded-md"/></div>
             </div>
-             <button type="submit" className="hidden"/>
         </form>
     );
 };
@@ -50,7 +53,6 @@ const IssueItem: React.FC = () => {
     
     const [isIssueModalOpen, setIssueModalOpen] = useState(false);
 
-    // FIX: Corrected useCan call to use a single scope string.
     const canManage = can('school:write');
 
     const { data: issues = [], isLoading: l1 } = useQuery<ItemIssue[], Error>({ queryKey: ['itemIssues', siteId], queryFn: () => itemIssueApi.get(siteId!) });
@@ -91,9 +93,25 @@ const IssueItem: React.FC = () => {
                 </CardContent>
             </Card>
 
-            <Modal isOpen={isIssueModalOpen} onClose={() => setIssueModalOpen(false)} title="Issue Item">
+            <Modal
+                isOpen={isIssueModalOpen}
+                onClose={() => setIssueModalOpen(false)}
+                title="Issue Item"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIssueModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="issue-item-form"
+                            className="ml-2"
+                            isLoading={issueMutation.isPending}
+                        >
+                            Issue
+                        </Button>
+                    </>
+                }
+            >
                 <IssueForm onSave={handleIssueStock} items={items} users={users} />
-                <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIssueModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Issue</Button></div>
             </Modal>
         </div>
     );
