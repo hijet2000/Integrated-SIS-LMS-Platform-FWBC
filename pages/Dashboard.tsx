@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 
 const SchoolIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-indigo-500" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="M6 5v17"/><path d="M12 5v17"/><path d="M2 12h20"/><path d="M2 7h20"/><path d="M12 2v3"/></svg>;
 const BookIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-teal-500" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>;

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -10,7 +9,7 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 import { 
     incomeHeadApi,
     getIncomes,

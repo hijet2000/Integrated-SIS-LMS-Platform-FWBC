@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 import { certificateTemplateApi, issuedCertificateApi, getStudents, getClassrooms } from '@/services/sisApi';
 import type { CertificateTemplate, IssuedCertificate, Student, Classroom } from '@/types';
 

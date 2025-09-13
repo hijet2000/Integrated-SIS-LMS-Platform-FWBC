@@ -1,8 +1,9 @@
+
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { AuthProvider } from '@/hooks/useAuth';
+import { AuthProvider } from '@/constants/useAuth';
 
 import MainLayout from '@/components/layout/MainLayout';
 import Spinner from '@/components/ui/Spinner';
@@ -38,14 +39,13 @@ const BatchStudentUpload = React.lazy(() => import('@/pages/student/BatchStudent
 
 const ApproveLeave = React.lazy(() => import('@/pages/attendance/ApproveLeave'));
 
-const AcademicsMain = React.lazy(() => import('@/pages/academics/Academics'));
-const AssignTeacher = React.lazy(() => import('@/pages/academics/AssignTeacher'));
-const ClassesAndSections = React.lazy(() => import('@/pages/academics/ClassesAndSections'));
-const ClassTimetable = React.lazy(() => import('@/pages/academics/ClassTimetable'));
-const PromoteStudents = React.lazy(() => import('@/pages/academics/PromoteStudents'));
-const SubjectGroup = React.lazy(() => import('@/pages/academics/SubjectGroup'));
-const Subjects = React.lazy(() => import('@/pages/academics/Subjects'));
-const TeachersTimetable = React.lazy(() => import('@/pages/academics/TeachersTimetable'));
+const AssignTeacher = React.lazy(() => import('@/academics/AssignTeacher'));
+const ClassesAndSections = React.lazy(() => import('@/pages/pages/academics/ClassesAndSections'));
+const ClassTimetable = React.lazy(() => import('@/academics/ClassTimetable'));
+const PromoteStudents = React.lazy(() => import('@/academics/PromoteStudents'));
+const SubjectGroup = React.lazy(() => import('@/academics/SubjectGroup'));
+const Subjects = React.lazy(() => import('@/academics/Subjects'));
+const TeachersTimetable = React.lazy(() => import('@/academics/TeachersTimetable'));
 
 const ExamsDashboard = React.lazy(() => import('@/pages/exams/ExamGroup'));
 const ExamSchedule = React.lazy(() => import('@/pages/exams/ExamSchedule'));
@@ -69,22 +69,17 @@ const PostalReceive = React.lazy(() => import('@/pages/frontoffice/PostalReceive
 const Complain = React.lazy(() => import('@/pages/frontoffice/Complain'));
 const FrontOfficeSetup = React.lazy(() => import('@/pages/frontoffice/Setup'));
 
-const FeesDashboard = React.lazy(() => import('@/pages/fees/FeesMaster'));
 const FeesMaster = React.lazy(() => import('@/pages/fees/FeesMaster'));
 const FeesReminder = React.lazy(() => import('@/pages/fees/FeesReminder'));
 const SearchPayments = React.lazy(() => import('@/pages/fees/SearchPayments'));
 
-const FinanceDashboard = React.lazy(() => import('@/pages/finance/Income'));
 const Income = React.lazy(() => import('@/pages/finance/Income'));
-// FIX: Added default export to pages/finance/Expenses.tsx to resolve lazy loading issue.
 const Expenses = React.lazy(() => import('@/pages/finance/Expenses'));
 
-const CommunicateDashboard = React.lazy(() => import('@/pages/communicate/NoticeBoard'));
 const NoticeBoard = React.lazy(() => import('@/pages/communicate/NoticeBoard'));
 const SendMessage = React.lazy(() => import('@/pages/communicate/SendMessage'));
 const Logs = React.lazy(() => import('@/pages/communicate/Logs'));
 
-const DownloadsDashboard = React.lazy(() => import('@/pages/downloads/Assignments'));
 const AssignmentsDownload = React.lazy(() => import('@/pages/downloads/Assignments'));
 const Syllabus = React.lazy(() => import('@/pages/downloads/Syllabus'));
 const OtherDownloads = React.lazy(() => import('@/pages/downloads/OtherDownloads'));
@@ -92,7 +87,6 @@ const UploadContent = React.lazy(() => import('@/pages/downloads/UploadContent')
 
 const Homework = React.lazy(() => import('@/pages/homework/AddHomework'));
 
-const LibraryDashboard = React.lazy(() => import('@/pages/library/BookList'));
 const BookList = React.lazy(() => import('@/pages/library/BookList'));
 const AddMember = React.lazy(() => import('@/pages/library/AddMember'));
 const IssueReturn = React.lazy(() => import('@/pages/library/IssueReturn'));
@@ -114,9 +108,7 @@ const CmsEvents = React.lazy(() => import('@/pages/front-cms/Events'));
 const CmsGallery = React.lazy(() => import('@/pages/front-cms/Gallery'));
 const CmsNews = React.lazy(() => import('@/pages/front-cms/News'));
 const CmsBannerImages = React.lazy(() => import('@/pages/front-cms/BannerImages'));
-// FIX: Corrected import path for MediaManager component and added a default export to the file to resolve the module not found error.
 const CmsMediaManager = React.lazy(() => import('@/pages/front-cms/MediaManager'));
-// FIX: Corrected import path for PagesMenus component and added a default export to the file to resolve the module not found error.
 const CmsPagesMenus = React.lazy(() => import('@/pages/front-cms/PagesMenus'));
 
 const App: React.FC = () => {

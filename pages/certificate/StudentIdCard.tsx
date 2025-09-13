@@ -8,7 +8,7 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import { useCan } from '@/hooks/useCan';
 // FIX: Import useAuth to get the current user's information for issuing certificates.
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 import { idCardTemplateApi, issuedCertificateApi, getStudentsByClassroom, getClassrooms } from '@/services/sisApi';
 import type { IdCardTemplate, IssuedCertificate, Student, Classroom } from '@/types';
 

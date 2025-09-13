@@ -8,7 +8,7 @@ import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent, CardHeader, CardFooter } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 import {
     homeworkApi,
     addHomework,

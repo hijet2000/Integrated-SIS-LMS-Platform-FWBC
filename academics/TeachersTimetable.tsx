@@ -55,12 +55,12 @@ const TeacherTimetableGrid: React.FC<{
                                 const slot = teacherSchedule.get(`${day}-${period}`);
                                 return (
                                     <td key={day} className="border p-2 h-20 align-top text-xs">
-                                        {slot && (
+                                        {slot ? (
                                             <div>
                                                 <p className="font-bold">{slot.subject}</p>
                                                 <p className="text-gray-600 dark:text-gray-400">{slot.class}</p>
                                             </div>
-                                        )}
+                                        ) : null}
                                     </td>
                                 );
                             })}
@@ -76,26 +76,29 @@ const TeachersTimetable: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
     const [selectedTeacherId, setSelectedTeacherId] = useState('');
-    
-    const canRead = can('read', 'academics.timetable', { kind: 'site', id: siteId! });
-    
-    const { data: teachers = [], isLoading: l1 } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!) });
-    const { data: timetables = [], isLoading: l2 } = useQuery<Timetable[], Error>({ queryKey: ['timetables', siteId], queryFn: () => getTimetables(siteId!) });
-    const { data: subjects = [], isLoading: l3 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!) });
-    const { data: classrooms = [], isLoading: l4 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
 
+    const canRead = can('read', 'academics.timetable', { kind: 'site', id: siteId! });
+
+    // Data fetching
+    const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!) });
+    const { data: timetables = [], isLoading: isLoadingTimetables } = useQuery<Timetable[], Error>({ queryKey: ['timetables', siteId], queryFn: () => getTimetables(siteId!) });
+    const { data: subjects = [], isLoading: isLoadingSubjects } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!) });
+    const { data: classrooms = [], isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
+    
+    // Memoized maps
     const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
     const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
 
     if (!canRead) {
         return <ErrorState title="Access Denied" message="You do not have permission to view timetables." />;
     }
-    
-    const isLoading = l1 || l2 || l3 || l4;
+
+    const isLoading = isLoadingTeachers || isLoadingTimetables || isLoadingSubjects || isLoadingClassrooms;
 
     return (
         <div>
-            <PageHeader title="Teachers Timetable" subtitle="View weekly schedules for individual teachers." />
+            <PageHeader title="Teacher's Timetable" subtitle="View weekly schedules for each teacher." />
+
             <Card>
                 <CardHeader>
                     <div className="flex items-center gap-4">
@@ -113,8 +116,8 @@ const TeachersTimetable: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     {isLoading && <div className="flex justify-center p-8"><Spinner /></div>}
-                    {!isLoading && !selectedTeacherId && <EmptyState title="No Teacher Selected" message="Please select a teacher to view their timetable." />}
-                    {!isLoading && selectedTeacherId && (
+                    {!selectedTeacherId && !isLoading && <EmptyState title="No Teacher Selected" message="Please select a teacher to view their timetable." />}
+                    {selectedTeacherId && !isLoading && (
                         <TeacherTimetableGrid 
                             teacherId={selectedTeacherId}
                             timetables={timetables}
@@ -128,4 +131,5 @@ const TeachersTimetable: React.FC = () => {
     );
 };
 
+// FIX: Add default export to resolve lazy loading error in App.tsx.
 export default TeachersTimetable;

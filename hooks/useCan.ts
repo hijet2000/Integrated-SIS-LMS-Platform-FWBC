@@ -1,5 +1,5 @@
 
-import { useAuth } from './useAuth';
+import { useAuth } from '@/constants/useAuth';
 // FIX: Corrected import paths for constants and types.
 import { PERMISSIONS } from '@/constants';
 import type { Resource, Action } from '@/types';

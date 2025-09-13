@@ -9,7 +9,7 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 import { itemIssueApi, inventoryItemApi, getTeachers, getStudents } from '@/services/sisApi';
 import type { ItemIssue, InventoryItem, Teacher, Student } from '@/types';
 
@@ -85,7 +85,7 @@ const IssueItem: React.FC = () => {
                             <thead><tr><th className="p-2 text-left">Date</th><th className="p-2 text-left">Item</th><th className="p-2 text-left">Qty</th><th className="p-2 text-left">Issued To</th></tr></thead>
                             <tbody>{issues.map(iss => <tr key={iss.id}><td className="p-2">{iss.issueDate}</td><td className="p-2">{itemMap.get(iss.itemId)}</td><td className="p-2">{iss.quantity}</td><td className="p-2">{userMap.get(iss.issueTo)}</td></tr>)}</tbody>
                         </table>
-                    ) : <EmptyState title="No History" message="No items have been issued yet."/>}
+                    ) : <EmptyState title="No History" message="No items have been issued yet." />}
                 </CardContent>
             </Card>
 

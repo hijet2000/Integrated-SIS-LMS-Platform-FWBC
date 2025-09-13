@@ -1,8 +1,11 @@
+
 import { createMockApi, mockApi } from './api';
 import type { 
     Student, Classroom, Guardian, StudentGuardian, FeeInvoice, Attendance, Program, Subject, Curriculum, Teacher, Grade, Timetable, TimetableSlot, SubjectGroup, AlumniEvent, AlumniEventRSVP, Alumni, StudentLeaveApplication, StudentLeaveApplicationStatus, CertificateTemplate, IssuedCertificate, IdCardTemplate, CommunicationLog, Notice, Content, AdmitCardTemplate, MarksheetTemplate, ExamGroup, ExamSchedule, Mark, MarksGrade, FeeType, FeeGroup, FeeMaster, FeeReminderLog, Expense, ExpenseHead, Income, IncomeHead, AdmissionEnquiry, Complaint, PhoneCallLog, PostalDispatch, PostalReceive, Visitor, SetupItem, Homework, HomeworkSubmission, RoomType, HostelRoom, HostelAllocation, InventoryItem, ItemCategory, StockReceive, Supplier, Store, ItemIssue, LibraryMember, Book, BookIssue, OnlineExam, OnlineExamResult, Question, MultiClassEnrollment, TransportRoute, Vehicle, Hostel, DigitalAsset, CatchupClass, CmsEvent, CmsEventRsvp, CmsAlbum, CmsPhoto, CmsNews, CatchupPlaybackToken, OnlineAdmissionApplication,
+    // FIX: Import missing types.
+    HealthInfo, DisciplineRecord,
 } from '@/types';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 
 // --- MOCK DATA ---
 const programs: Program[] = [
@@ -14,7 +17,8 @@ const classrooms: Classroom[] = [
     { id: 'cls_2', siteId: 'site_123', name: 'Grade 10 - Section B', capacity: 30, programId: 'prog_1' },
     { id: 'cls_3', siteId: 'site_123', name: 'Grade 11 - Science', capacity: 25, programId: 'prog_2', stream: 'Science', tutorId: 'tch_2' },
 ];
-const students: Student[] = [
+// FIX: Changed to let to allow mutation for bulk delete.
+let students: Student[] = [
     { id: 'std_1', siteId: 'site_123', firstName: 'John', lastName: 'Doe', admissionNo: 'A001', rollNo: '10A01', classroomId: 'cls_1', dob: '2008-05-10', gender: 'Male', email: 'john.doe@example.com', phone: '123-456-7890', status: 'ENROLLED', address: { street: '123 Main St', city: 'Anytown', state: 'CA', zip: '12345' }, health: { allergies: '', medications: '', conditions: '', notes: '' }, discipline: [] },
     { id: 'std_2', siteId: 'site_123', firstName: 'Jane', lastName: 'Smith', admissionNo: 'A002', rollNo: '10A02', classroomId: 'cls_1', dob: '2008-07-22', gender: 'Female', email: 'jane.smith@example.com', phone: '123-456-7891', status: 'ENROLLED', address: { street: '456 Oak Ave', city: 'Anytown', state: 'CA', zip: '12345' }, health: { allergies: 'Peanuts', medications: '', conditions: '', notes: '' }, discipline: [] },
     { id: 'std_3', siteId: 'site_123', firstName: 'Peter', lastName: 'Jones', admissionNo: 'B001', rollNo: '11S01', classroomId: 'cls_3', dob: '2007-02-15', gender: 'Male', email: 'peter.jones@example.com', phone: '123-456-7892', status: 'ENROLLED', address: { street: '789 Pine Ln', city: 'Anytown', state: 'CA', zip: '12345' }, health: { allergies: '', medications: '', conditions: '', notes: '' }, discipline: [] },
@@ -49,6 +53,11 @@ let attendance: Attendance[] = [
 ];
 const onlineAdmissionApplications: OnlineAdmissionApplication[] = [
     { id: 'oa_1', siteId: 'site_123', applicantFirstName: 'Emily', applicantLastName: 'Brown', applicantDob: '2009-01-01', applicantGender: 'Female', classSought: 'Grade 10', guardianName: 'Sarah Brown', guardianRelation: 'Mother', guardianPhone: '555-1234', guardianEmail: 'sarah.b@email.com', submissionDate: '2024-06-20', status: 'Approved', notes: 'Seems promising.' }
+];
+// FIX: Add mock data for leave applications
+const studentLeaveApplications: StudentLeaveApplication[] = [
+    { id: 'leave_1', siteId: 'site_123', studentId: 'std_1', fromDate: '2024-09-01', toDate: '2024-09-02', reason: 'Family function', status: 'Approved', appliedOn: '2024-08-28' },
+    { id: 'leave_2', siteId: 'site_123', studentId: 'std_2', fromDate: '2024-09-05', toDate: '2024-09-05', reason: 'Not feeling well', status: 'Pending', appliedOn: '2024-09-04' },
 ];
 
 // --- API IMPLEMENTATIONS ---
@@ -184,6 +193,7 @@ export const updateOnlineAdmissionApplicationStatus = (applicationId: string, st
 
 // Generic CRUD APIs
 export const programApi = createMockApi<Program>('program', programs);
+export const getPrograms = programApi.get;
 export const classroomApi = createMockApi<Classroom>('classroom', classrooms);
 export const subjectApi = createMockApi<Subject>('subject', subjects);
 export const subjectGroupApi = createMockApi<SubjectGroup>('subjectGroup', []);
@@ -199,6 +209,7 @@ export const contentApi = createMockApi<Content>('content', []);
 export const admitCardTemplateApi = createMockApi<AdmitCardTemplate>('admitCardTemplate', []);
 export const marksheetTemplateApi = createMockApi<MarksheetTemplate>('marksheetTemplate', []);
 export const examGroupApi = createMockApi<ExamGroup>('examGroup', []);
+export const getExamGroups = examGroupApi.get;
 export const marksGradeApi = createMockApi<MarksGrade>('marksGrade', []);
 export const feeTypeApi = createMockApi<FeeType>('feeType', []);
 export const feeGroupApi = createMockApi<FeeGroup>('feeGroup', []);
@@ -235,6 +246,17 @@ export const cmsAlbumApi = createMockApi<CmsAlbum>('cmsAlbum', []);
 export const cmsPhotoApi = createMockApi<CmsPhoto>('cmsPhoto', []);
 export const cmsNewsApi = createMockApi<CmsNews>('cmsNews', []);
 export const multiClassEnrollmentApi = createMockApi<MultiClassEnrollment>('multiClassEnrollment', []);
+// FIX: Add missing APIs
+export const studentLeaveApplicationApi = createMockApi<StudentLeaveApplication>('studentLeave', studentLeaveApplications);
+export const getStudentLeaveApplications = studentLeaveApplicationApi.get;
+export const addStudentLeaveApplication = studentLeaveApplicationApi.add;
+export const updateStudentLeaveApplicationStatus = (id: string, status: StudentLeaveApplicationStatus) => studentLeaveApplicationApi.update(id, { status });
+export const admissionEnquiryApi = createMockApi<AdmissionEnquiry>('admissionEnquiry', []);
+export const getAdmissionEnquiries = admissionEnquiryApi.get;
+export const studentCategoryApi = createMockApi<SetupItem>('studentCategory', []);
+export const studentHouseApi = createMockApi<SetupItem>('studentHouse', []);
+export const disableReasonApi = createMockApi<SetupItem>('disableReason', []);
+
 
 // More complex APIs
 export const getCurricula = (siteId: string): Promise<Curriculum[]> => mockApi([]);

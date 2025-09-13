@@ -20,7 +20,7 @@ import {
 } from '@/services/sisApi';
 import type { Student, Grade, FeeInvoice, Guardian, StudentGuardian, HealthInfo, DisciplineRecord, StudentStatus, Attendance } from '@/types';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/constants/useAuth';
 
 const statusColors: { [key: string]: string } = {
     ENROLLED: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
@@ -137,8 +137,8 @@ const DisciplineTab: React.FC<{ student: Student, canUpdate: boolean, canDelete:
     const [newRecord, setNewRecord] = useState({ date: new Date().toISOString().split('T')[0], incident: '', actionTaken: '' });
 
     const addMutation = useMutation({
-// FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
-        mutationFn: (record: Omit<DisciplineRecord, 'id' | 'reportedBy'>) => addDisciplineRecord(student.id, { ...record, reportedBy: user!.id }),
+        // FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
+        mutationFn: (record: Omit<DisciplineRecord, 'id' | 'reportedBy'>) => addDisciplineRecord(student.id, { ...record, reportedBy: user!.name }),
         onSuccess: (updatedStudent) => {
             queryClient.setQueryData(['student', student.id], updatedStudent);
             setShowForm(false);
