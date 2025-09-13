@@ -26,10 +26,10 @@ export interface Address {
 }
 
 export interface HealthInfo {
-    allergies: string;
-    medications: string;
-    conditions: string;
-    notes: string;
+    allergies?: string;
+    medications?: string;
+    conditions?: string;
+    notes?: string;
 }
 
 export interface DisciplineRecord {
