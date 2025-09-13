@@ -1,212 +1,199 @@
-
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import EmptyState from '@/components/ui/EmptyState';
 import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent } from '@/components/ui/Card';
-import Modal from '@/components/ui/Modal';
+import { getPrograms, getSubjects, getCurricula, getClassrooms, getTeachers } from '@/services/sisApi';
 import { useCan } from '@/hooks/useCan';
-import {
-    programApi,
-    classroomApi,
-// FIX: Correct import path for sisApi
-    feeGroupApi,
-    getTeachers,
-    getStudents,
-} from '@/services/sisApi';
-// FIX: Correct import path for domain types.
-import type { Program, Classroom, FeeGroup, Teacher, Student } from '@/types';
+import type { Program, Subject, Curriculum, Classroom, Teacher } from '@/types';
 
-type Tab = 'classes' | 'sections';
+type Tab = 'programs' | 'subjects' | 'curricula' | 'classrooms';
+const TABS: { id: Tab, label: string }[] = [
+    { id: 'programs', label: 'Programs' },
+    { id: 'subjects', label: 'Subjects' },
+    { id: 'curricula', label: 'Curricula' },
+    { id: 'classrooms', label: 'Classrooms' },
+];
 
-// --- Classes (Programs) Tab ---
-const ClassesTab: React.FC<{ siteId: string, can: (scope: any) => boolean }> = ({ siteId, can }) => {
-    const queryClient = useQueryClient();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selected, setSelected] = useState<Program | null>(null);
+const ProgramsTab: React.FC<{ siteId: string, canCreate: boolean }> = ({ siteId, canCreate }) => {
+    const { data: programs, isLoading, isError, error, refetch } = useQuery<Program[], Error>({
+        queryKey: ['programs', siteId],
+        queryFn: () => getPrograms(siteId),
+    });
 
-    const { data: items = [], isLoading, isError } = useQuery<Program[], Error>({ queryKey: ['programs', siteId], queryFn: () => programApi.get(siteId) });
-    const { data: feeGroups = [] } = useQuery<FeeGroup[], Error>({ queryKey: ['feeGroups', siteId], queryFn: () => feeGroupApi.get(siteId) });
-    const feeGroupMap = useMemo(() => new Map(feeGroups.map(fg => [fg.id, fg.name])), [feeGroups]);
-
-    const mutationOptions = { onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['programs', siteId] }); setIsModalOpen(false); } };
-    const addMutation = useMutation({ mutationFn: (item: Omit<Program, 'id'|'siteId'>) => programApi.add(item), ...mutationOptions });
-    const updateMutation = useMutation({ mutationFn: (item: Program) => programApi.update(item.id, item), ...mutationOptions });
-    const deleteMutation = useMutation({ mutationFn: (id: string) => programApi.delete(id), ...mutationOptions });
-
-    const handleSave = (itemData: any) => {
-        selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
-    };
+    if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>;
+    if (isError) return <ErrorState title="Failed to load programs" message={error.message} onRetry={refetch} />;
 
     return (
-        <div>
-            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Class</Button>}
-            {isLoading && <Spinner/>}
-            {isError && <ErrorState title="Error" message="Could not load classes." />}
-            {!isLoading && !isError && (
+        <>
+            {programs && programs.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y">
-                        <thead><tr>
-                            <th className="px-6 py-3 text-left">Class Name</th>
-                            <th className="px-6 py-3 text-left">Code</th>
-                            <th className="px-6 py-3 text-left">Session</th>
-                            <th className="px-6 py-3 text-left">Fee Group</th>
-                            <th className="px-6 py-3 text-right">Actions</th>
-                        </tr></thead>
-                        <tbody className="bg-white dark:bg-gray-800 divide-y">
-                            {items.map(item => (
-                                <tr key={item.id}>
-                                    <td className="px-6 py-4 font-medium">{item.name}</td>
-                                    <td className="px-6 py-4">{item.code}</td>
-                                    <td className="px-6 py-4">{item.session}</td>
-                                    <td className="px-6 py-4">{item.feeGroupId ? feeGroupMap.get(item.feeGroupId) : 'N/A'}</td>
-                                    <td className="px-6 py-4 text-right space-x-2">
-                                        {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                        {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
-                                    </td>
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Level</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Duration (Years)</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {programs.map(p => (
+                                <tr key={p.id}><td className="px-6 py-4">{p.name}</td><td className="px-6 py-4">{p.level}</td><td className="px-6 py-4">{p.duration}</td></tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : <EmptyState title="No programs found" message="Get started by adding a new program." actionText={canCreate ? 'Add Program' : undefined} onAction={canCreate ? () => alert('New program form') : undefined} />}
+        </>
+    );
+};
+
+const SubjectsTab: React.FC<{ siteId: string, canCreate: boolean }> = ({ siteId, canCreate }) => {
+    const { data: subjects, isLoading, isError, error, refetch } = useQuery<Subject[], Error>({
+        queryKey: ['subjects', siteId],
+        queryFn: () => getSubjects(siteId),
+    });
+
+    if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>;
+    if (isError) return <ErrorState title="Failed to load subjects" message={error.message} onRetry={refetch} />;
+    
+    return (
+         <>
+            {subjects && subjects.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Max Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {subjects.map(s => (
+                                <tr key={s.id}><td className="px-6 py-4">{s.code}</td><td className="px-6 py-4">{s.name}</td><td className="px-6 py-4">{s.maxMarks}</td></tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : <EmptyState title="No subjects found" message="Get started by adding a new subject." actionText={canCreate ? 'Add Subject' : undefined} onAction={canCreate ? () => alert('New subject form') : undefined} />}
+        </>
+    );
+};
+
+const ClassroomsTab: React.FC<{ siteId: string, canCreate: boolean }> = ({ siteId, canCreate }) => {
+    const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId) });
+    const { data: programs } = useQuery<Program[], Error>({ queryKey: ['programs', siteId], queryFn: () => getPrograms(siteId) });
+    const { data: teachers } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId) });
+
+    const programMap = useMemo(() => new Map<string, string>(programs?.map(p => [p.id, p.name])), [programs]);
+    const teacherMap = useMemo(() => new Map<string, string>(teachers?.map(t => [t.id, t.name])), [teachers]);
+
+    if (isLoadingClassrooms) return <div className="flex justify-center p-8"><Spinner /></div>;
+
+    return (
+         <>
+            {classrooms && classrooms.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                         <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Program</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Capacity</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Tutor</th>
+                            </tr>
+                        </thead>
+                         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {classrooms.map(c => (
+                                <tr key={c.id}>
+                                    <td className="px-6 py-4">{c.name}</td>
+                                    <td className="px-6 py-4">{c.programId ? programMap.get(c.programId) || 'N/A' : 'N/A'}</td>
+                                    <td className="px-6 py-4">{c.capacity}</td>
+                                    <td className="px-6 py-4">{c.tutorId ? teacherMap.get(c.tutorId) || 'N/A' : 'N/A'}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            )}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Class' : 'Add Class'}
-                footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} className="ml-2">Save</Button></>}>
-                <ClassForm item={selected} onSave={handleSave} feeGroups={feeGroups} />
-            </Modal>
-        </div>
-    );
-};
-const ClassForm: React.FC<{item?: Program | null, onSave: (data: any) => void, feeGroups: FeeGroup[]}> = ({ item, onSave, feeGroups }) => {
-    const [formState, setFormState] = useState({ name: item?.name || '', code: item?.code || '', session: item?.session || '2024-2025', feeGroupId: item?.feeGroupId || '' });
-    return (
-        <form onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
-            <div><label>Class Name</label><input value={formState.name} onChange={e => setFormState(p=>({...p, name: e.target.value}))} required className="w-full rounded-md"/></div>
-            <div><label>Code</label><input value={formState.code} onChange={e => setFormState(p=>({...p, code: e.target.value}))} className="w-full rounded-md"/></div>
-            <div><label>Session</label><input value={formState.session} onChange={e => setFormState(p=>({...p, session: e.target.value}))} className="w-full rounded-md"/></div>
-            <div><label>Fee Group</label><select value={formState.feeGroupId} onChange={e => setFormState(p=>({...p, feeGroupId: e.target.value}))} className="w-full rounded-md"><option value="">None</option>{feeGroups.map(fg=><option key={fg.id} value={fg.id}>{fg.name}</option>)}</select></div>
-            <div className="hidden"><button type="submit">Save</button></div>
-        </form>
+            ) : <EmptyState title="No classrooms found" message="Get started by adding a new classroom." actionText={canCreate ? 'Add Classroom' : undefined} onAction={canCreate ? () => alert('New classroom form') : undefined} />}
+        </>
     );
 };
 
-// --- Sections (Classrooms) Tab ---
-const SectionsTab: React.FC<{ siteId: string, can: (scope: any) => boolean }> = ({ siteId, can }) => {
-    const queryClient = useQueryClient();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selected, setSelected] = useState<Classroom | null>(null);
 
-    const { data: items = [], isLoading, isError } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => classroomApi.get(siteId) });
-    const { data: programs = [] } = useQuery<Program[], Error>({ queryKey: ['programs', siteId], queryFn: () => programApi.get(siteId) });
-    const { data: teachers = [] } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId) });
-    const { data: students = [] } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!) });
+const CurriculaTab: React.FC<{ siteId: string, canCreate: boolean }> = ({ siteId, canCreate }) => {
+    const { data: curricula, isLoading: isLoadingCurricula } = useQuery<Curriculum[], Error>({ queryKey: ['curricula', siteId], queryFn: () => getCurricula(siteId) });
+    const { data: programs } = useQuery<Program[], Error>({ queryKey: ['programs', siteId], queryFn: () => getPrograms(siteId) });
+    const { data: subjects } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId) });
+
+    const programMap = useMemo(() => new Map(programs?.map(p => [p.id, p.name])), [programs]);
+    const subjectMap = useMemo(() => new Map(subjects?.map(s => [s.id, s.name])), [subjects]);
     
-    const programMap = useMemo(() => new Map(programs.map(p => [p.id, p.name])), [programs]);
-    const teacherMap = useMemo(() => new Map(teachers.map(t => [t.id, t.name])), [teachers]);
-    const studentCountMap = useMemo(() => {
-        const counts = new Map<string, number>();
-        students.forEach(s => {
-            counts.set(s.classroomId, (counts.get(s.classroomId) || 0) + 1);
-        });
-        return counts;
-    }, [students]);
-
-    const mutationOptions = { onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['classrooms', siteId] }); setIsModalOpen(false); } };
-    const addMutation = useMutation({ mutationFn: (item: Omit<Classroom, 'id'|'siteId'>) => classroomApi.add(item), ...mutationOptions });
-    const updateMutation = useMutation({ mutationFn: (item: Classroom) => classroomApi.update(item.id, item), ...mutationOptions });
-    const deleteMutation = useMutation({ mutationFn: (id: string) => classroomApi.delete(id), ...mutationOptions });
-
-    const handleSave = (itemData: any) => {
-        selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
-    };
+    if (isLoadingCurricula) return <div className="flex justify-center p-8"><Spinner /></div>;
     
     return (
-        <div>
-            {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Section</Button>}
-            {isLoading && <Spinner/>}
-            {isError && <ErrorState title="Error" message="Could not load sections." />}
-            {!isLoading && !isError && (
-                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y">
-                        <thead><tr>
-                            <th className="px-6 py-3 text-left">Parent Class</th>
-                            <th className="px-6 py-3 text-left">Section Name</th>
-                            <th className="px-6 py-3 text-left">Stream</th>
-                            <th className="px-6 py-3 text-left">Class Teacher</th>
-                            <th className="px-6 py-3 text-left">Enrollment</th>
-                            <th className="px-6 py-3 text-right">Actions</th>
-                        </tr></thead>
-                        <tbody className="bg-white dark:bg-gray-800 divide-y">
-                            {items.map(item => (
-                                <tr key={item.id}>
-                                    <td className="px-6 py-4">{programMap.get(item.programId)}</td>
-                                    <td className="px-6 py-4 font-medium">{item.name}</td>
-                                    <td className="px-6 py-4">{item.stream}</td>
-                                    <td className="px-6 py-4">{item.tutorId ? teacherMap.get(item.tutorId) : 'N/A'}</td>
-                                    <td className="px-6 py-4">{studentCountMap.get(item.id) || 0} / {item.capacity}</td>
-                                    <td className="px-6 py-4 text-right space-x-2">
-                                        {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
-                                        {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}
-                                    </td>
+         <>
+            {curricula && curricula.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                         <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Program / Year</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Subjects</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {curricula.map(c => (
+                                <tr key={c.id}>
+                                    <td className="px-6 py-4">{c.programId ? programMap.get(c.programId) || 'N/A' : 'N/A'} - Year {c.year}</td>
+                                    <td className="px-6 py-4">{c.subjects.map(sId => subjectMap.get(sId) || sId).join(', ')}</td>
+                                    <td className="px-6 py-4">{c.status}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            )}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Section' : 'Add Section'}
-                 footer={<><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))} className="ml-2">Save</Button></>}>
-                <SectionForm item={selected} onSave={handleSave} programs={programs} teachers={teachers} />
-            </Modal>
-        </div>
-    );
-};
-const SectionForm: React.FC<{item?: Classroom | null, onSave: (data: any) => void, programs: Program[], teachers: Teacher[]}> = ({ item, onSave, programs, teachers }) => {
-    const [formState, setFormState] = useState({ name: item?.name || '', programId: item?.programId || '', stream: item?.stream || '', capacity: item?.capacity || 30, tutorId: item?.tutorId || '' });
-    return (
-        <form onSubmit={e => { e.preventDefault(); onSave(formState); }} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div><label>Parent Class</label><select value={formState.programId} onChange={e => setFormState(p=>({...p, programId: e.target.value}))} required className="w-full rounded-md"><option value="">Select Class</option>{programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
-                <div><label>Section Name</label><input value={formState.name} onChange={e => setFormState(p=>({...p, name: e.target.value}))} required className="w-full rounded-md"/></div>
-                <div><label>Stream</label><input value={formState.stream} onChange={e => setFormState(p=>({...p, stream: e.target.value}))} className="w-full rounded-md"/></div>
-                <div><label>Capacity</label><input type="number" value={formState.capacity} onChange={e => setFormState(p=>({...p, capacity: parseInt(e.target.value)}))} required className="w-full rounded-md"/></div>
-                <div className="col-span-2"><label>Class Teacher</label><select value={formState.tutorId} onChange={e => setFormState(p=>({...p, tutorId: e.target.value}))} className="w-full rounded-md"><option value="">None</option>{teachers.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
-            </div>
-            <div className="hidden"><button type="submit">Save</button></div>
-        </form>
+            ) : <EmptyState title="No curricula found" message="Get started by defining a new curriculum." actionText={canCreate ? 'Add Curriculum' : undefined} onAction={canCreate ? () => alert('New curriculum form') : undefined} />}
+        </>
     );
 };
 
-
-// --- Main Component ---
 const ClassesAndSections: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
-    const [activeTab, setActiveTab] = useState<Tab>('classes');
+    const [activeTab, setActiveTab] = useState<Tab>('programs');
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:read')` to match the `useCan` hook's implementation.
+    const canCreate = can('school:write');
     const canRead = can('school:read');
 
+    const activeTabLabel = TABS.find(t => t.id === activeTab)?.label || '';
+
     if (!canRead) {
-        return <ErrorState title="Access Denied" message="You do not have permission to configure classes and sections." />;
+        return <ErrorState title="Access Denied" message="You do not have permission to view academic information." />;
     }
 
-    const tabs: { key: Tab; label: string }[] = [
-        { key: 'classes', label: 'Classes' },
-        { key: 'sections', label: 'Sections' },
-    ];
-    
     return (
         <div>
-            <PageHeader title="Class / Sections" subtitle="Manage the foundational academic structure of the school." />
-            
+            <PageHeader
+                title="Classes & Sections"
+                subtitle="Manage programs, subjects, curricula, and classrooms."
+                actions={canCreate && (
+                    <Button onClick={() => alert(`New ${activeTabLabel.slice(0, -1)} form would open.`)}>
+                        Add {activeTabLabel.slice(0, -1)}
+                    </Button>
+                )}
+            />
+
             <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                <nav className="-mb-px flex space-x-6 overflow-x-auto">
-                    {tabs.map(tab => (
-                        <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`${activeTab === tab.key ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
+                <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                    {TABS.map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${activeTab === tab.id ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
                             {tab.label}
                         </button>
                     ))}
@@ -215,8 +202,10 @@ const ClassesAndSections: React.FC = () => {
             
             <Card>
                 <CardContent>
-                    {activeTab === 'classes' && <ClassesTab siteId={siteId!} can={can} />}
-                    {activeTab === 'sections' && <SectionsTab siteId={siteId!} can={can} />}
+                    {activeTab === 'programs' && <ProgramsTab siteId={siteId!} canCreate={canCreate} />}
+                    {activeTab === 'subjects' && <SubjectsTab siteId={siteId!} canCreate={canCreate} />}
+                    {activeTab === 'classrooms' && <ClassroomsTab siteId={siteId!} canCreate={canCreate} />}
+                    {activeTab === 'curricula' && <CurriculaTab siteId={siteId!} canCreate={canCreate} />}
                 </CardContent>
             </Card>
         </div>

@@ -58,7 +58,7 @@ const OnlineAdmission: React.FC = () => {
         mutationFn: (application: OnlineAdmissionApplication) => updateOnlineAdmissionApplicationStatus(application.id, 'Converted'),
         onSuccess: (updatedApplication) => {
             queryClient.invalidateQueries({ queryKey: ['onlineAdmissionApplications', siteId] });
-            navigate(`/student/${siteId}/admission`, { state: { fromApplication: updatedApplication } });
+            navigate(`/school/${siteId}/student-admission`, { state: { fromApplication: updatedApplication } });
         },
         onError: (e: Error) => alert(`Failed to convert application: ${e.message}`),
     });

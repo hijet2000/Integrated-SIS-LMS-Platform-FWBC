@@ -17,8 +17,7 @@ import EmptyState from '@/components/ui/EmptyState';
 const HostelForm: React.FC<{
     item?: Hostel | null;
     onSave: (item: Omit<Hostel, 'id' | 'siteId'> | Hostel) => void;
-    onCancel: () => void;
-}> = ({ item, onSave, onCancel }) => {
+}> = ({ item, onSave }) => {
     const [formState, setFormState] = useState({
         name: item?.name ?? '',
         type: item?.type ?? 'Boys',
@@ -31,17 +30,14 @@ const HostelForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="hostel-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div><label>Hostel Name</label><input value={formState.name} onChange={e => setFormState(p => ({ ...p, name: e.target.value }))} required className="w-full rounded-md"/></div>
                 <div><label>Type</label><select value={formState.type} onChange={e => setFormState(p => ({ ...p, type: e.target.value as 'Boys'|'Girls' }))} className="w-full rounded-md"><option>Boys</option><option>Girls</option></select></div>
                 <div className="col-span-2"><label>Address</label><textarea value={formState.address} onChange={e => setFormState(p => ({ ...p, address: e.target.value }))} rows={2} className="w-full rounded-md"/></div>
                 <div><label>Intake (Capacity)</label><input type="number" value={formState.intake} onChange={e => setFormState(p => ({ ...p, intake: parseInt(e.target.value) }))} required className="w-full rounded-md"/></div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save</Button>
-            </div>
+            <button type="submit" className="hidden" />
         </form>
     );
 };
@@ -53,7 +49,6 @@ const HostelsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<Hostel | null>(null);
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
     const canManage = can('school:write');
 
     const { data: items, isLoading, isError, error } = useQuery<Hostel[], Error>({ queryKey: ['hostels', siteId], queryFn: () => hostelApi.get(siteId!) });
@@ -94,8 +89,25 @@ const HostelsPage: React.FC = () => {
                     ) : <EmptyState title="No Hostels" message="Add a hostel to get started." />}
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Hostel' : 'Add Hostel'}>
-                <HostelForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selected ? 'Edit Hostel' : 'Add Hostel'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="hostel-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <HostelForm item={selected} onSave={handleSave} />
             </Modal>
         </div>
     );

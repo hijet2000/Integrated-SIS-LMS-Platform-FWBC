@@ -16,7 +16,8 @@ const Faculty = React.lazy(() => import('@/pages/sis/Faculty'));
 const Grades = React.lazy(() => import('@/pages/sis/Grades'));
 const Attendance = React.lazy(() => import('@/pages/sis/Attendance'));
 const AttendanceRecords = React.lazy(() => import('@/pages/sis/AttendanceRecords'));
-const Academics = React.lazy(() => import('@/pages/academics/Academics'));
+// FIX: Import the new ClassesAndSections component instead of the generic Academics one for this route.
+const ClassesAndSections = React.lazy(() => import('@/pages/academics/ClassesAndSections'));
 const Subjects = React.lazy(() => import('@/pages/academics/Subjects'));
 const SubjectGroup = React.lazy(() => import('@/pages/academics/SubjectGroup'));
 const AssignTeacher = React.lazy(() => import('@/pages/academics/AssignTeacher'));
@@ -159,7 +160,8 @@ const routes: AppRoute[] = [
     { path: '/school/:siteId/grades', element: <Grades />, scope: 'school:read' },
     { path: '/school/:siteId/attendance', element: <Attendance />, scope: 'school:read' },
     { path: '/school/:siteId/attendance/records', element: <AttendanceRecords />, scope: 'school:read' },
-    { path: '/school/:siteId/academics/classes', element: <Academics />, scope: 'school:read' },
+    // FIX: Use the new ClassesAndSections component for this route.
+    { path: '/school/:siteId/academics/classes', element: <ClassesAndSections />, scope: 'school:read' },
     { path: '/school/:siteId/academics/subjects', element: <Subjects />, scope: 'school:read' },
     { path: '/school/:siteId/academics/subject-group', element: <SubjectGroup />, scope: 'school:write' },
     { path: '/school/:siteId/academics/assign-teacher', element: <AssignTeacher />, scope: 'school:write' },

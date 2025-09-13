@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -42,7 +41,7 @@ const EventForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        <form id="alumni-event-form" onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2"><label>Title *</label><input name="title" value={form.title} onChange={handleChange} required className="w-full rounded-md"/></div>
                 <div><label>Date & Time *</label><input type="datetime-local" name="eventDate" value={form.eventDate} onChange={handleChange} required className="w-full rounded-md"/></div>
@@ -119,9 +118,25 @@ const Events: React.FC = () => {
                 ) : <EmptyState title="No Upcoming Events" message="Create an event to engage with your alumni." onAction={canManage ? () => setIsModalOpen(true) : undefined} actionText="Create Event"/>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedEvent ? 'Edit Event' : 'Create Event'}>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selectedEvent ? 'Edit Event' : 'Create Event'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            className="ml-2"
+                            form="alumni-event-form"
+                            type="submit"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save Event
+                        </Button>
+                    </>
+                }
+            >
                 <EventForm event={selectedEvent} onSave={handleSave} onCancel={() => setIsModalOpen(false)} isSaving={addMutation.isPending || updateMutation.isPending} />
-                 <div className="flex justify-end gap-2 mt-4"><Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button><Button onClick={() => document.querySelector('form button[type="submit"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}>Save Event</Button></div>
             </Modal>
         </div>
     );

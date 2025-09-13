@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -16,10 +15,9 @@ import EmptyState from '@/components/ui/EmptyState';
 const RoomForm: React.FC<{
     item?: HostelRoom | null;
     onSave: (item: Omit<HostelRoom, 'id' | 'siteId'> | HostelRoom) => void;
-    onCancel: () => void;
     hostels: Hostel[];
     roomTypes: RoomType[];
-}> = ({ item, onSave, onCancel, hostels, roomTypes }) => {
+}> = ({ item, onSave, hostels, roomTypes }) => {
     const [formState, setFormState] = useState({
         hostelId: item?.hostelId ?? '',
         roomTypeId: item?.roomTypeId ?? '',
@@ -36,7 +34,7 @@ const RoomForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="room-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div><label>Hostel</label><select value={formState.hostelId} onChange={e => setFormState(p => ({ ...p, hostelId: e.target.value }))} required className="w-full rounded-md"><option value="">Select</option>{hostels.map(h=><option key={h.id} value={h.id}>{h.name}</option>)}</select></div>
                 <div><label>Room Type</label><select value={formState.roomTypeId} onChange={e => setFormState(p => ({ ...p, roomTypeId: e.target.value }))} required className="w-full rounded-md"><option value="">Select</option>{roomTypes.map(rt=><option key={rt.id} value={rt.id}>{rt.name}</option>)}</select></div>
@@ -44,10 +42,7 @@ const RoomForm: React.FC<{
                 <div><label>Capacity</label><input type="number" value={formState.capacity} onChange={e => setFormState(p => ({ ...p, capacity: parseInt(e.target.value) }))} required className="w-full rounded-md"/></div>
                 <div><label>Cost per Bed ($)</label><input type="number" step="0.01" value={formState.costPerBed} onChange={e => setFormState(p => ({ ...p, costPerBed: parseFloat(e.target.value) }))} required className="w-full rounded-md"/></div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save</Button>
-            </div>
+            <button type="submit" className="hidden"/>
         </form>
     );
 };
@@ -108,8 +103,30 @@ const RoomsPage: React.FC = () => {
                     ) : <EmptyState title="No Rooms" message="Add a room to get started." />}
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Room' : 'Add Room'}>
-                <RoomForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} hostels={hostels} roomTypes={roomTypes} />
+            <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title={selected ? 'Edit Room' : 'Add Room'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="room-form" 
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
+                <RoomForm 
+                    item={selected} 
+                    onSave={handleSave} 
+                    hostels={hostels} 
+                    roomTypes={roomTypes} 
+                />
             </Modal>
         </div>
     );

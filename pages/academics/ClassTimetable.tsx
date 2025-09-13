@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -76,10 +75,9 @@ const TimetableGrid: React.FC<{
 const SlotEditForm: React.FC<{
     slotInfo: { day: DayOfWeek, period: number, slot: TimetableSlot | null };
     onSave: (data: Partial<Omit<TimetableSlot, 'dayOfWeek' | 'period'>>) => void;
-    onCancel: () => void;
     subjects: Subject[];
     teachers: Teacher[];
-}> = ({ slotInfo, onSave, onCancel, subjects, teachers }) => {
+}> = ({ slotInfo, onSave, subjects, teachers }) => {
     const [formState, setFormState] = useState({
         subjectId: slotInfo.slot?.subjectId || '',
         teacherId: slotInfo.slot?.teacherId || '',
@@ -91,22 +89,12 @@ const SlotEditForm: React.FC<{
         onSave(formState);
     };
 
-    const handleClear = () => {
-        onSave({}); // Save empty object to signify clearing the slot
-    };
-
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="slot-edit-form" onSubmit={handleSubmit} className="space-y-4">
             <div><label className="block text-sm font-medium">Subject</label><select value={formState.subjectId} onChange={e => setFormState(p => ({...p, subjectId: e.target.value}))} className="mt-1 w-full rounded-md"><option value="">- Select Subject -</option>{subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
             <div><label className="block text-sm font-medium">Teacher</label><select value={formState.teacherId} onChange={e => setFormState(p => ({...p, teacherId: e.target.value}))} className="mt-1 w-full rounded-md"><option value="">- Select Teacher -</option>{teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
             <div><label className="block text-sm font-medium">Room (Optional)</label><input type="text" value={formState.room} onChange={e => setFormState(p => ({...p, room: e.target.value}))} className="mt-1 w-full rounded-md"/></div>
-            <div className="flex justify-between items-center pt-4">
-                <Button type="button" variant="danger" onClick={handleClear}>Clear Slot</Button>
-                <div className="space-x-2">
-                    <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                    <Button type="submit">Save</Button>
-                </div>
-            </div>
+            <button type="submit" className="hidden" />
         </form>
     );
 };
@@ -120,9 +108,7 @@ const ClassTimetable: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSlot, setEditingSlot] = useState<{ day: DayOfWeek, period: number, slot: TimetableSlot | null } | null>(null);
 
-    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
     const canRead = can('school:read');
-    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
     const canUpdate = can('school:write');
 
     const { data: classrooms = [], isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!), enabled: canRead });
@@ -215,12 +201,30 @@ const ClassTimetable: React.FC = () => {
                     isOpen={isModalOpen} 
                     onClose={() => setIsModalOpen(false)} 
                     title={`Edit Slot: ${editingSlot.day} - Period ${editingSlot.period}`}
+                    footer={
+                        <div className="w-full flex justify-between items-center">
+                            <Button
+                                variant="danger"
+                                onClick={() => handleSaveSlot({})}
+                            >
+                                Clear Slot
+                            </Button>
+                            <div className="space-x-2">
+                                <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                <Button
+                                    type="submit"
+                                    form="slot-edit-form"
+                                    isLoading={saveMutation.isPending}
+                                >
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    }
                 >
-                    {/* FIX: The Card component requires a children prop. This was resolved by implementing the full component logic. */}
                     <SlotEditForm 
                         slotInfo={editingSlot}
                         onSave={handleSaveSlot}
-                        onCancel={() => setIsModalOpen(false)}
                         subjects={subjects}
                         teachers={teachers}
                     />
@@ -230,5 +234,4 @@ const ClassTimetable: React.FC = () => {
     );
 };
 
-// FIX: Added a default export to resolve lazy loading error in App.tsx.
 export default ClassTimetable;

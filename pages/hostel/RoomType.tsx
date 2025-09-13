@@ -21,7 +21,6 @@ const RoomTypeForm: React.FC<{
     const [formState, setFormState] = useState({
         name: item?.name ?? '',
         description: item?.description ?? '',
-        // FIX: Added bedCapacity to the form state to match the RoomType interface.
         bedCapacity: item?.bedCapacity ?? 2,
     });
     const handleSubmit = (e: React.FormEvent) => {
@@ -30,14 +29,11 @@ const RoomTypeForm: React.FC<{
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="room-type-form" onSubmit={handleSubmit} className="space-y-4">
             <div><label>Type Name (e.g., 2-Seater AC)</label><input value={formState.name} onChange={e => setFormState(p => ({ ...p, name: e.target.value }))} required className="w-full rounded-md"/></div>
             <div><label>Bed Capacity</label><input type="number" value={formState.bedCapacity} onChange={e => setFormState(p => ({...p, bedCapacity: parseInt(e.target.value, 10) || 1 }))} required className="w-full rounded-md"/></div>
             <div><label>Description</label><textarea value={formState.description} onChange={e => setFormState(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full rounded-md"/></div>
-            <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save</Button>
-            </div>
+            <button type="submit" className="hidden" />
         </form>
     );
 };
@@ -49,7 +45,6 @@ const RoomTypePage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selected, setSelected] = useState<RoomType | null>(null);
 
-    // FIX: Replace complex permission check with a simple scope-based check `can('school:write')` to match the `useCan` hook's implementation.
     const canManage = can('school:write');
 
     const { data: items, isLoading, isError, error } = useQuery<RoomType[], Error>({ queryKey: ['roomTypes', siteId], queryFn: () => roomTypeApi.get(siteId!) });
@@ -89,7 +84,24 @@ const RoomTypePage: React.FC = () => {
                     ) : <EmptyState title="No Room Types" message="Add a room type to get started." />}
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selected ? 'Edit Room Type' : 'Add Room Type'}>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={selected ? 'Edit Room Type' : 'Add Room Type'}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="room-type-form"
+                            className="ml-2"
+                            isLoading={addMutation.isPending || updateMutation.isPending}
+                        >
+                            Save
+                        </Button>
+                    </>
+                }
+            >
                 <RoomTypeForm item={selected} onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
             </Modal>
         </div>
