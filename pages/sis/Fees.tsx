@@ -36,7 +36,8 @@ const Fees: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState({ amount: '', method: 'Cash', notes: '' });
 
-    const canCollectFees = can('pay', 'school.fees', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'pay' action to 'school:write' scope.
+    const canCollectFees = can('school:write');
 
     const { data: students = [], isLoading: isLoadingStudents } = useQuery<Student[], Error>({
         queryKey: ['students', siteId],

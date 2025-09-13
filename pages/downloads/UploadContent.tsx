@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -9,7 +10,7 @@ import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/constants/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 // FIX: Correct import path for sisApi
 import { contentApi, getClassrooms, getSubjects } from '@/services/sisApi';
 // FIX: Correct import path for domain types.

@@ -15,7 +15,9 @@ import type { EduResource } from '@/types';
 
 const ResourcesTable: React.FC<{ resources: EduResource[] }> = ({ resources }) => {
     const { siteId } = useParams<{ siteId: string }>();
-    const canPay = useCan()('pay', 'edu.resources', { kind: 'site', id: siteId! });
+    const can = useCan();
+    // FIX: The useCan hook expects a single scope string. Mapped 'pay' action to 'school:write' scope.
+    const canPay = can('school:write');
 
     return (
         <div className="overflow-x-auto">
@@ -66,7 +68,8 @@ const Resources: React.FC = () => {
         enabled: !!siteId,
     });
 
-    const canCreate = can('create', 'edu.resources', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canCreate = can('school:write');
 
     return (
         <div>

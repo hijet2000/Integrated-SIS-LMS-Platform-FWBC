@@ -40,7 +40,7 @@ const AllocateRoom: React.FC = () => {
     
     const handleAllocate = () => {
         if (!selectedStudentId || !selectedRoomId) return;
-        addMutation.mutate({ studentId: selectedStudentId, roomId: selectedRoomId, allocatedOn: new Date().toISOString().split('T')[0] });
+        addMutation.mutate({ studentId: selectedStudentId, roomId: selectedRoomId });
     };
 
     const isLoading = l1 || l2 || l3 || l4;

@@ -93,10 +93,14 @@ const Subjects: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 
-    const canRead = can('read', 'academics.subjects', { kind: 'site', id: siteId! });
-    const canCreate = can('create', 'academics.subjects', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'academics.subjects', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'academics.subjects', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canRead = can('school:read');
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canCreate = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
+    const canUpdate = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'delete' action to 'school:write' scope.
+    const canDelete = can('school:write');
 
     const { data: subjects, isLoading, isError, error } = useQuery<Subject[], Error>({
         queryKey: ['subjects', siteId],

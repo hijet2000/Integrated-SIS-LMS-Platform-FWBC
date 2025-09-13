@@ -51,7 +51,8 @@ const Courses: React.FC = () => {
         enabled: !!siteId,
     });
 
-    const canCreateCourses = can('create', 'edu.courses', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canCreateCourses = can('school:write');
 
     return (
         <div>

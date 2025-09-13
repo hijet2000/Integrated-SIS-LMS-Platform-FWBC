@@ -12,7 +12,7 @@ import Modal from '@/components/ui/Modal';
 import { useCan } from '@/hooks/useCan';
 // FIX: Correct import path for sisApi
 import { marksheetTemplateApi } from '@/services/sisApi';
-// FIX: Corrected import path for domain types.
+// FIX: Correct import path for domain types.
 import type { MarksheetTemplate } from '@/types';
 
 // --- Marksheet Preview Component ---

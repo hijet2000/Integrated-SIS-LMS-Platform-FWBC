@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -9,7 +10,7 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/constants/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { 
     expenseHeadApi,
     getExpenses,
@@ -143,13 +144,12 @@ const ExpenseForm: React.FC<{item?: Expense | null, onSave: (data: any) => void,
                 <div><label>Date <span className="text-red-500">*</span></label><input type="date" name="expenseDate" value={formState.expenseDate} onChange={handleChange} required className="w-full rounded-md"/></div>
             </div>
             <div><label>Description</label><textarea name="description" value={formState.description} onChange={handleChange} rows={2} className="w-full rounded-md"/></div>
-            <div><label>Attach Invoice/Proof</label><input type="file" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/></div>
+            <div><label>Attach Invoice/Receipt</label><input type="file" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/></div>
             <div className="flex justify-end space-x-2"><Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button><Button type="submit">Save</Button></div>
         </form>
     );
 };
 
-// --- Main Component ---
 const Expenses: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();
     const can = useCan();
@@ -162,13 +162,13 @@ const Expenses: React.FC = () => {
     }
 
     const tabs: { key: Tab; label: string }[] = [
-        { key: 'search', label: 'Search Expenses' },
+        { key: 'search', label: 'Search Expense' },
         { key: 'heads', label: 'Expense Heads' },
     ];
     
     return (
         <div>
-            <PageHeader title="Expenses" subtitle="Record and manage all non-payroll expenses." />
+            <PageHeader title="Expenses" subtitle="Record and manage all school expenses." />
             
             <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
                 <nav className="-mb-px flex space-x-6">

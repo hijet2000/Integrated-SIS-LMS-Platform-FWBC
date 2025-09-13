@@ -43,7 +43,8 @@ const AttendanceRecords: React.FC = () => {
 
     const [queryParams, setQueryParams] = useState<{ classroomId: string; startDate: string; endDate: string } | null>(null);
 
-    const canReadAttendance = can('read', 'attendance.reports', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canReadAttendance = can('school:read');
 
     const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({
         queryKey: ['classrooms', siteId],

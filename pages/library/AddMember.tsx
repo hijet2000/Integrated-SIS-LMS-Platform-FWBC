@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -114,25 +115,26 @@ const AddMember: React.FC = () => {
                                         <th className="px-6 py-3 text-left text-xs uppercase">Status</th>
                                         <th className="px-6 py-3 text-right text-xs uppercase">Actions</th>
                                     </tr></thead>
-                                    {/* FIX: Map over members to render table rows instead of trying to render the array directly. */}
                                     <tbody className="bg-white dark:bg-gray-800 divide-y">
                                         {members.map(member => {
                                             const user = userMap.get(member.userId);
-                                            if (!user) return null;
-                                            const name = user.userType === 'Student' ? `${user.firstName} ${user.lastName}` : user.name;
-                                            const classOrDept = user.userType === 'Student' ? classroomMap.get(user.classroomId) : user.department;
-                                            
+                                            const name = user ? (user.userType === 'Student' ? `${user.firstName} ${user.lastName}` : user.name) : 'Unknown User';
+                                            const classOrDept = user?.userType === 'Student' ? classroomMap.get((user as Student).classroomId) : 'Staff';
                                             return (
                                                 <tr key={member.id}>
                                                     <td className="px-6 py-4 font-medium">{name}</td>
                                                     <td className="px-6 py-4">{member.memberType}</td>
                                                     <td className="px-6 py-4">{classOrDept}</td>
-                                                    <td className="px-6 py-4 font-mono">{member.libraryCardNo}</td>
+                                                    <td className="px-6 py-4">{member.libraryCardNo}</td>
                                                     <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[member.status]}`}>{member.status}</span></td>
                                                     <td className="px-6 py-4 text-right space-x-2">
-                                                        {canUpdate && member.status !== 'Suspended' && <Button size="sm" onClick={() => updateMutation.mutate({ memberId: member.id, status: 'Suspended'})}>Suspend</Button>}
-                                                        {canUpdate && member.status === 'Suspended' && <Button size="sm" onClick={() => updateMutation.mutate({ memberId: member.id, status: 'Active'})}>Re-activate</Button>}
-                                                        {canDelete && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(member.id)}>Revoke</Button>}
+                                                        <Button size="sm" variant="secondary" onClick={() => alert(`Printing ID for ${name}...`)}>Print ID</Button>
+                                                        {canUpdate && (
+                                                            member.status === 'Active'
+                                                            ? <Button size="sm" onClick={() => updateMutation.mutate({ memberId: member.id, status: 'Suspended' })}>Suspend</Button>
+                                                            : <Button size="sm" onClick={() => updateMutation.mutate({ memberId: member.id, status: 'Active' })}>Activate</Button>
+                                                        )}
+                                                        {canDelete && <Button size="sm" variant="danger" onClick={() => deleteMutation.mutate(member.id)}>Revoke</Button>}
                                                     </td>
                                                 </tr>
                                             );
@@ -140,50 +142,41 @@ const AddMember: React.FC = () => {
                                     </tbody>
                                 </table>
                             </div>
-                        ) : <EmptyState title="No Active Members" message="Add a member from the next tab to get started." />
+                        ) : <EmptyState title="No Active Members" message="Add students or staff from the 'Add New Member' tab to get started." onAction={() => setActiveTab('add')} actionText="Add New Member" />
                     )}
                     
-                     {!isLoading && activeTab === 'add' && (
-                         nonMembers.length > 0 ? (
+                    {!isLoading && activeTab === 'add' && (
+                        nonMembers.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y">
-                                     <thead><tr>
+                                    <thead><tr>
                                         <th className="px-6 py-3 text-left text-xs uppercase">Name</th>
                                         <th className="px-6 py-3 text-left text-xs uppercase">Type</th>
                                         <th className="px-6 py-3 text-left text-xs uppercase">Class/Dept</th>
                                         <th className="px-6 py-3 text-right text-xs uppercase">Actions</th>
                                     </tr></thead>
                                     <tbody className="bg-white dark:bg-gray-800 divide-y">
-                                        {nonMembers.map(user => {
-                                            const name = user.userType === 'Student' ? `${user.firstName} ${user.lastName}` : user.name;
-                                            const classOrDept = user.userType === 'Student' ? classroomMap.get(user.classroomId) : user.department;
-                                            
-                                            return (
-                                                <tr key={user.id}>
-                                                    <td className="px-6 py-4 font-medium">{name}</td>
-                                                    <td className="px-6 py-4">{user.userType}</td>
-                                                    <td className="px-6 py-4">{classOrDept}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        {canCreate && <Button size="sm" onClick={() => addMutation.mutate({
-                                                            userId: user.id,
-                                                            memberType: user.userType,
-                                                            libraryCardNo: `${user.userType === 'Student' ? 'S' : 'T'}${user.id.slice(-4)}${new Date().getFullYear()}`,
-                                                            status: 'Active',
-                                                        })} isLoading={addMutation.isPending && addMutation.variables?.userId === user.id}>Add as Member</Button>}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
+                                        {nonMembers.map(user => (
+                                             <tr key={`${user.userType}-${user.id}`}>
+                                                <td className="px-6 py-4 font-medium">{user.userType === 'Student' ? `${user.firstName} ${user.lastName}` : user.name}</td>
+                                                <td className="px-6 py-4">{user.userType}</td>
+                                                <td className="px-6 py-4">{user.userType === 'Student' ? classroomMap.get((user as Student).classroomId) : 'Staff'}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    {canCreate && (
+                                                        <Button size="sm" onClick={() => addMutation.mutate({ userId: user.id, memberType: user.userType, libraryCardNo: `LBC-${Date.now()}`, status: 'Active' })}>Add Member</Button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
-                         ) : <EmptyState title="All Users are Members" message="All students and staff in the system have been added to the library." />
-                     )}
+                        ) : <EmptyState title="All Users are Members" message="There are no students or staff left to add to the library." />
+                    )}
                 </CardContent>
             </Card>
         </div>
     );
 };
 
-// FIX: Added default export to resolve lazy loading error in App.tsx.
 export default AddMember;

@@ -1,157 +1,122 @@
 
-import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { SCHOOL_SIDEBAR } from '@/constants/sidebar';
+import type { NavItem, Scope } from '@/types/navigation';
 import { useCan } from '@/hooks/useCan';
-import type { Action, Resource } from '@/types';
 
-// A generic icon component
-const Icon = ({ path, className = 'w-5 h-5' }: { path: string; className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={path} />
-    </svg>
+const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform duration-200 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
 );
 
-interface NavItem {
-    label: string;
-    href?: string;
-    icon: React.ReactNode;
-    permission?: { action: Action, resource: Resource };
-    children?: NavItem[];
-}
+const SidebarItem: React.FC<{
+  item: NavItem;
+  isActive: (path: string) => boolean;
+  isParentActive: (item: NavItem) => boolean;
+  handleToggle: (label: string) => void;
+  openItems: Set<string>;
+}> = ({ item, isActive, isParentActive, handleToggle, openItems }) => {
+  const can = useCan();
+  const hasChildren = item.children && item.children.length > 0;
+  const isOpen = openItems.has(item.label);
 
-const navConfig: NavItem[] = [
-    { label: 'Dashboard', href: '/dashboard/:siteId', icon: <Icon path="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /> },
-    {
-        label: 'Student Information',
-        icon: <Icon path="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197" />,
-        permission: { action: 'read', resource: 'school.students'},
-        children: [
-            { label: 'Student Details', href: '/school/:siteId/students', icon: <></> },
-            { label: 'Student Admission', href: '/student/:siteId/admission', permission: { action: 'create', resource: 'student.admission' }, icon: <></> },
-            { label: 'Online Admission', href: '/student/:siteId/online-admission', permission: { action: 'read', resource: 'student.online-admission' }, icon: <></> },
-        ],
-    },
-    {
-        label: 'Academics',
-        icon: <Icon path="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />,
-        permission: { action: 'read', resource: 'school.academics'},
-        children: [
-            { label: 'Class Timetable', href: '/academics/:siteId/timetable', icon: <></> },
-            { label: 'Subjects', href: '/academics/:siteId/subjects', icon: <></> },
-            { label: 'Class & Sections', href: '/academics/:siteId/classes', icon: <></> },
-        ]
-    },
-    {
-        label: 'Certificate',
-        icon: <Icon path="M15 5v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5m11 0a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2m11 0v0a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1" />,
-        permission: { action: 'read', resource: 'certificate.issue' },
-        children: [
-            { label: 'Student Certificate', href: '/certificate/:siteId/student-certificate', icon: <></> },
-            { label: 'Staff Certificate', href: '/certificate/:siteId/staff-certificate', icon: <></> },
-            { label: 'Student ID Card', href: '/certificate/:siteId/student-id-card', permission: { action: 'read', resource: 'certificate.id-cards' }, icon: <></> },
-            { label: 'Staff ID Card', href: '/certificate/:siteId/staff-id-card', permission: { action: 'read', resource: 'certificate.id-cards' }, icon: <></> },
-            { label: 'ID Card Designer', href: '/certificate/:siteId/id-card-designer', permission: { action: 'read', resource: 'certificate.templates' }, icon: <></> },
-        ]
-    },
-    {
-        label: 'Front CMS',
-        icon: <Icon path="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />,
-        permission: { action: 'read', resource: 'front-cms.events' },
-        children: [
-            { label: 'Events', href: '/front-cms/:siteId/events', icon: <></>, permission: { action: 'read', resource: 'front-cms.events' } },
-            { label: 'Gallery', href: '/front-cms/:siteId/gallery', icon: <></>, permission: { action: 'read', resource: 'front-cms.gallery' } },
-            { label: 'News', href: '/front-cms/:siteId/news', icon: <></>, permission: { action: 'read', resource: 'front-cms.news' } },
-            { label: 'Banner Images', href: '/front-cms/:siteId/banner-images', icon: <></> },
-            { label: 'Media Manager', href: '/front-cms/:siteId/media-manager', icon: <></> },
-            { label: 'Pages & Menus', href: '/front-cms/:siteId/pages-menus', icon: <></> },
-        ]
-    },
-];
+  if (item.scope && !can(item.scope)) {
+      return null;
+  }
 
-
-const SidebarLink: React.FC<{ item: NavItem }> = ({ item }) => {
-    const { siteId } = useParams<{ siteId: string }>();
-    const can = useCan();
-
-    if (item.permission && !can(item.permission.action, item.permission.resource, { kind: 'site', id: siteId! })) {
-        return null;
-    }
-    
-    const path = item.href ? item.href.replace(':siteId', siteId || 'site_123') : '#';
-    
+  if (hasChildren) {
     return (
-        <NavLink
-            to={path}
-            end={item.href?.split('/').pop() === ':siteId'} // end should be true for base paths
-            className={({ isActive }) =>
-                `flex items-center p-2 text-sm rounded-md transition-colors ${
-                isActive ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`
-            }
+      <div>
+        <button
+          onClick={() => handleToggle(item.label)}
+          className={`w-full flex justify-between items-center px-4 py-2 text-sm rounded-md text-left ${isParentActive(item) ? 'font-semibold text-gray-900 dark:text-white' : 'font-medium text-gray-600 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
         >
-            {item.icon}
-            <span className="ml-3">{item.label}</span>
-        </NavLink>
+          <span>{item.label}</span>
+          <ChevronDownIcon className={isOpen ? 'rotate-180' : ''} />
+        </button>
+        {isOpen && (
+          <div className="pl-4 mt-1 space-y-1">
+            {item.children.map(child => (
+              <SidebarItem key={child.label} item={child} isActive={isActive} isParentActive={isParentActive} handleToggle={handleToggle} openItems={openItems} />
+            ))}
+          </div>
+        )}
+      </div>
     );
+  }
+
+  return (
+    <Link
+      to={item.path || '#'}
+      className={`block px-4 py-2 text-sm rounded-md ${isActive(item.path || '') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+    >
+      {item.label}
+    </Link>
+  );
 };
-
-const SidebarDropdown: React.FC<{ item: NavItem; defaultOpen?: boolean }> = ({ item, defaultOpen = false }) => {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
-    const { siteId } = useParams<{ siteId: string }>();
-    const can = useCan();
-    
-    if (item.permission && !can(item.permission.action, item.permission.resource, { kind: 'site', id: siteId! })) {
-        return null;
-    }
-
-    const accessibleChildren = item.children?.filter(child => 
-        !child.permission || can(child.permission.action, child.permission.resource, { kind: 'site', id: siteId! })
-    ) || [];
-
-    if (accessibleChildren.length === 0) return null;
-
-    return (
-         <div>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-2 text-sm text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-                <div className="flex items-center">
-                    {item.icon}
-                    <span className="ml-3">{item.label}</span>
-                </div>
-                <Icon path={isOpen ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} className="w-4 h-4" />
-            </button>
-            {isOpen && (
-                <div className="pl-6 mt-1 space-y-1">
-                    {accessibleChildren.map(child => (
-                        <SidebarLink key={child.label} item={{...child, icon: <></>}} />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
-
 
 const Sidebar: React.FC = () => {
+    const { siteId } = useParams();
     const location = useLocation();
+    const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+
+    if (!siteId) return null;
+
+    const isActive = (path: string) => location.pathname === path.replace(':siteId', siteId);
     
+    const isParentActive = (parent: NavItem): boolean => {
+        if (!parent.children) return false;
+        return parent.children.some(child => child.path && isActive(child.path) || isParentActive(child));
+    };
+
+    const handleToggle = (label: string) => {
+        setOpenItems(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(label)) {
+                newSet.delete(label);
+            } else {
+                newSet.add(label);
+            }
+            return newSet;
+        });
+    };
+
+    // Automatically open parent of active child on load
+    React.useEffect(() => {
+        const activeParent = SCHOOL_SIDEBAR.find(item => isParentActive(item));
+        if (activeParent) {
+            setOpenItems(prev => new Set(prev).add(activeParent.label));
+        }
+    }, [location.pathname]);
+
+
     return (
-        <aside className="w-64 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">FaithEdu</h1>
+        <aside className="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="h-16 flex items-center justify-center text-2xl font-bold text-indigo-600 dark:text-indigo-400 border-b border-gray-200 dark:border-gray-700">
+                FaithEdu
             </div>
-            <nav className="p-4 space-y-2">
-                {navConfig.map(item => {
-                    const isParentActive = item.children?.some(child => child.href && location.pathname.startsWith(child.href.split('/:')[0]));
-                    return item.children 
-                        ? <SidebarDropdown key={item.label} item={item} defaultOpen={isParentActive} /> 
-                        : <SidebarLink key={item.label} item={item} />
-                })}
+            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                {SCHOOL_SIDEBAR.map((item, index) => (
+                    <div key={`${item.label}-${index}`}>
+                       {item.children ? (
+                           // It's a group with a title
+                           <div>
+                               <h3 className="px-2 pt-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{item.label}</h3>
+                               <div className="mt-2 space-y-1">
+                                {item.children.map(child => (
+                                    <SidebarItem key={child.label} item={child} isActive={isActive} isParentActive={isParentActive} handleToggle={handleToggle} openItems={openItems} />
+                                ))}
+                               </div>
+                           </div>
+                       ) : (
+                           // It's a single top-level link
+                           <SidebarItem item={item} isActive={isActive} isParentActive={isParentActive} handleToggle={handleToggle} openItems={openItems} />
+                       )}
+                    </div>
+                ))}
             </nav>
         </aside>
     );
-};
+}
 
 export default Sidebar;

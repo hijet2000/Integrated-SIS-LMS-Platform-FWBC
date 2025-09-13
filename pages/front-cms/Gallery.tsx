@@ -9,7 +9,7 @@ import Card, { CardContent, CardHeader, CardFooter } from '@/components/ui/Card'
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/constants/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { cmsAlbumApi, cmsPhotoApi } from '@/services/sisApi';
 import type { CmsAlbum, CmsPhoto } from '@/types';
 

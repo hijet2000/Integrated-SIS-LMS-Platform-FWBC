@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -175,8 +176,10 @@ const Academics: React.FC = () => {
     const can = useCan();
     const [activeTab, setActiveTab] = useState<Tab>('programs');
 
-    const canCreate = can('create', 'school.academics', { kind: 'site', id: siteId! });
-    const canRead = can('read', 'school.academics', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canCreate = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canRead = can('school:read');
 
     const activeTabLabel = TABS.find(t => t.id === activeTab)?.label || '';
 

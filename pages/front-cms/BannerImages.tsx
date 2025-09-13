@@ -1,8 +1,9 @@
+
 import React from 'react';
 import Placeholder from '@/components/ui/Placeholder';
 
-const BannerImages: React.FC = () => {
+const CmsBannerImages: React.FC = () => {
   return <Placeholder title="Banner Images" />;
 };
 
-export default BannerImages;
+export default CmsBannerImages;

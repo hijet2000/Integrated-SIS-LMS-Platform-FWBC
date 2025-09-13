@@ -21,9 +21,11 @@ const AssignTeacher: React.FC = () => {
     const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
     const [selectedTutorId, setSelectedTutorId] = useState<string | undefined>('');
 
-    const canUpdate = can('update', 'academics.assign-teacher', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
+    const canUpdate = can('school:write');
     // If a user can update, they should also be able to read the necessary data.
-    const canRead = can('read', 'academics.assign-teacher', { kind: 'site', id: siteId! }) || canUpdate;
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canRead = can('school:read') || canUpdate;
 
     const { data: classrooms, isLoading: isLoadingClassrooms, isError, error } = useQuery<Classroom[], Error>({
         queryKey: ['classrooms', siteId],

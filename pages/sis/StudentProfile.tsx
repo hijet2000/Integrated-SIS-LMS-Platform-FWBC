@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
@@ -6,6 +7,7 @@ import Spinner from '@/components/ui/Spinner';
 import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+// FIX: Corrected import path for sisApi
 import { 
     getStudentById, 
     getGradesForStudent, 
@@ -18,9 +20,10 @@ import {
     updateStudent,
     getAttendanceForStudent,
 } from '@/services/sisApi';
+// FIX: Corrected import path for domain types.
 import type { Student, Grade, FeeInvoice, Guardian, StudentGuardian, HealthInfo, DisciplineRecord, StudentStatus, Attendance } from '@/types';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/constants/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 const statusColors: { [key: string]: string } = {
     ENROLLED: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
@@ -137,8 +140,8 @@ const DisciplineTab: React.FC<{ student: Student, canUpdate: boolean, canDelete:
     const [newRecord, setNewRecord] = useState({ date: new Date().toISOString().split('T')[0], incident: '', actionTaken: '' });
 
     const addMutation = useMutation({
-        // FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
-        mutationFn: (record: Omit<DisciplineRecord, 'id' | 'reportedBy'>) => addDisciplineRecord(student.id, { ...record, reportedBy: user!.name }),
+// FIX: Corrected logical error by explicitly passing properties to addDisciplineRecord.
+        mutationFn: (record: Omit<DisciplineRecord, 'id' | 'reportedBy'>) => addDisciplineRecord(student.id, { ...record, reportedBy: user!.id }),
         onSuccess: (updatedStudent) => {
             queryClient.setQueryData(['student', student.id], updatedStudent);
             setShowForm(false);
@@ -422,8 +425,10 @@ const StudentProfile: React.FC = () => {
         updateMutation.mutate(editFormState);
     };
 
-    const canUpdate = can('update', 'school.students', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'school.students', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
+    const canUpdate = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'delete' action to 'school:write' scope.
+    const canDelete = can('school:write');
 
     if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>;
     if (isError) return <ErrorState title="Failed to load student" message={error.message} onRetry={refetch} />;

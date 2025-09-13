@@ -40,7 +40,8 @@ const Curriculum: React.FC = () => {
         enabled: !!siteId,
     });
 
-    const canCreate = can('create', 'edu.curriculum', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canCreate = can('school:write');
 
     return (
         <div>

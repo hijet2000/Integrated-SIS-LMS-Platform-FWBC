@@ -12,10 +12,10 @@ import { useCan } from '@/hooks/useCan';
 import {
     programApi,
     classroomApi,
+// FIX: Correct import path for sisApi
     feeGroupApi,
     getTeachers,
     getStudents,
-// FIX: Correct import path for sisApi
 } from '@/services/sisApi';
 // FIX: Correct import path for domain types.
 import type { Program, Classroom, FeeGroup, Teacher, Student } from '@/types';

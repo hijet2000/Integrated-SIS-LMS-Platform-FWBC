@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useAuth } from '@/constants/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 // FIX: Corrected import paths for type and constant.
 import type { Role } from '@/types';
 import { ROLES } from '@/constants';

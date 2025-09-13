@@ -1,4 +1,3 @@
-
 // Simulates a network delay for mock API calls
 export const mockApi = <T,>(data: T, delay = 500): Promise<T> => {
   return new Promise(resolve => {
@@ -46,8 +45,7 @@ export const createMockApi = <T extends { id: string; siteId: string }>(
         data[index] = { ...data[index], ...updates };
         return mockApi(data[index]);
       }
-      // IMPROVEMENT: Use mockApiError for consistent error handling.
-      return mockApiError(404, `${resourceName} not found`);
+      return Promise.reject(new Error(`${resourceName} not found`));
     },
     delete: (id: string): Promise<{ success: boolean }> => {
       const index = data.findIndex(item => item.id === id);
@@ -55,8 +53,7 @@ export const createMockApi = <T extends { id: string; siteId: string }>(
         data.splice(index, 1);
         return mockApi({ success: true });
       }
-       // IMPROVEMENT: Use mockApiError for consistent error handling.
-      return mockApiError(404, `${resourceName} not found`);
+      return Promise.reject(new Error(`${resourceName} not found`));
     },
   };
 };

@@ -20,7 +20,8 @@ const PromoteStudents: React.FC = () => {
     const [toClassId, setToClassId] = useState('');
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     
-    const canPromote = can('update', 'academics.promote', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
+    const canPromote = can('school:write');
     
     const { data: students, isLoading: isLoadingStudents } = useQuery<Student[], Error>({
         queryKey: ['students', siteId],

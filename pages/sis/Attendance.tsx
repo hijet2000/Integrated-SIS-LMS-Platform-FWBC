@@ -41,8 +41,10 @@ const Attendance: React.FC = () => {
     const [selectedClassroom, setSelectedClassroom] = useState('');
     const [attendanceData, setAttendanceData] = useState<Record<string, AttendanceState>>({});
 
-    const canRecordAttendance = can('create', 'school.attendance', { kind: 'site', id: siteId! });
-    const canReadAttendance = can('read', 'school.attendance', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'create' action to 'school:write' scope.
+    const canRecordAttendance = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canReadAttendance = can('school:read');
 
     const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({
         queryKey: ['classrooms', siteId],

@@ -122,9 +122,12 @@ const Students: React.FC = () => {
     const [filters, setFilters] = useState({ classroomId: 'all', keyword: '' });
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
-    const canReadStudents = can('read', 'school.students', { kind: 'site', id: siteId! });
-    const canUpdate = can('update', 'school.students', { kind: 'site', id: siteId! });
-    const canDelete = can('delete', 'school.students', { kind: 'site', id: siteId! });
+    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
+    const canReadStudents = can('school:read');
+    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
+    const canUpdate = can('school:write');
+    // FIX: The useCan hook expects a single scope string. Mapped 'delete' action to 'school:write' scope.
+    const canDelete = can('school:write');
 
     const { data: students, isLoading: isLoadingStudents, isError, error } = useQuery<Student[], Error>({
         queryKey: ['students', siteId],
