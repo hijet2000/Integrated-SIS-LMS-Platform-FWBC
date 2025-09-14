@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useCan } from '@/hooks/useCan';
 import { useAuth } from '@/auth/AuthProvider';
-import type { Scope } from '@/types/navigation';
+// FIX: Import Scope from the central types file to ensure consistency.
+import type { Scope } from '@/types';
 import ErrorState from '@/components/ui/ErrorState';
 
 export const RequireScope: React.FC<{ scope: Scope | Scope[], children: React.ReactNode }> = ({ scope, children }) => {

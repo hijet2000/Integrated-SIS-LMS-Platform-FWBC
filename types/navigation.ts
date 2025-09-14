@@ -1,5 +1,6 @@
 
-export type Scope = 'school:read'|'school:write'|'school:admin';
+// FIX: Removed local Scope definition and imported from '@/types' to ensure a single source of truth.
+import type { Scope } from '@/types';
 
 export type NavItem = {
   label: string;

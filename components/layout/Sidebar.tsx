@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { SCHOOL_SIDEBAR } from '@/constants/sidebar';
-import type { NavItem, Scope } from '@/types/navigation';
+// FIX: Import Scope from central types definition
+import type { NavItem } from '@/types/navigation';
+import type { Scope } from '@/types';
 import { useCan } from '@/hooks/useCan';
 
 const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => (

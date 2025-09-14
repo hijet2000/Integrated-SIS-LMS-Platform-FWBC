@@ -1,5 +1,7 @@
+
 import { useAuth } from '@/auth/AuthProvider';
-import type { Scope } from '@/types/navigation';
+// FIX: Import Scope from the central types file to ensure consistency.
+import type { Scope } from '@/types';
 
 export const useCan = () => {
     const { user } = useAuth();

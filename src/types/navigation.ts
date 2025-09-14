@@ -1,5 +1,6 @@
-// FIX: Add missing scopes to the Scope type to resolve type errors.
-export type Scope = 'school:read'|'school:write'|'school:admin' | 'library:read' | 'library:write' | 'lms:admin' | 'attendance:read' | 'attendance:write';
+
+// FIX: Removed local Scope definition and imported from '@/types' to ensure a single source of truth.
+import type { Scope } from '@/types';
 
 export type NavItem = {
   label: string;

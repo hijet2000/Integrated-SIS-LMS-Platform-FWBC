@@ -1,7 +1,8 @@
+
 // FIX: Create the useAuth hook and AuthProvider to provide authentication context to the application. This resolves numerous 'module not found' errors.
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { Role } from '@/types';
-import type { Scope } from '@/types/navigation';
+// FIX: Consolidate type imports and use central Scope definition.
+import type { Role, Scope } from '@/types';
 
 interface User {
   id: string;

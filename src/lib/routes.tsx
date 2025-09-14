@@ -1,7 +1,8 @@
 import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import RequireScope from '@/auth/RequireScope';
-import type { Scope } from '@/types/navigation';
+// FIX: Import Scope from the central types file.
+import type { Scope } from '@/types';
 
 // Dashboards
 const SisDashboard = React.lazy(() => import('@/pages/sis/SisDashboard'));

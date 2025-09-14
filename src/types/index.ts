@@ -1,5 +1,8 @@
+
 // --- General & Auth ---
 export type Role = 'super_admin' | 'school_admin' | 'bursar' | 'teacher' | 'student' | 'lms_admin' | 'librarian' | 'front_desk';
+// FIX: Add Scope type to serve as the single source of truth for permissions.
+export type Scope = 'school:read' | 'school:write' | 'school:admin' | 'library:read' | 'library:write' | 'lms:admin' | 'attendance:read' | 'attendance:write';
 export type Priority = 'Urgent' | 'Regular' | 'Info';
 export type Audience = 'All' | 'Students' | 'Staff' | 'Parents' | 'Class';
 

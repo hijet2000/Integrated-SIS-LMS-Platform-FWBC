@@ -1,9 +1,11 @@
 
+
 // FIX: Create comprehensive type definitions for the application to resolve widespread 'module not found' and 'cannot find name' errors.
 
 // --- General & Auth ---
 export type Role = 'super_admin' | 'school_admin' | 'bursar' | 'teacher' | 'student' | 'lms_admin' | 'librarian' | 'front_desk';
-export type Scope = 'school:read' | 'school:write' | 'school:admin';
+// FIX: Expanded Scope to include all possible values to resolve type conflicts across the application.
+export type Scope = 'school:read' | 'school:write' | 'school:admin' | 'library:read' | 'library:write' | 'lms:admin' | 'attendance:read' | 'attendance:write';
 export type Priority = 'Urgent' | 'Regular' | 'Info';
 export type Audience = 'All' | 'Students' | 'Staff' | 'Parents' | 'Class';
 

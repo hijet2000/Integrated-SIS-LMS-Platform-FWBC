@@ -48,6 +48,15 @@ const resources: EduResource[] = [
 // Courses
 export const getCourses = (siteId: string): Promise<Course[]> => mockApi(courses.filter(c => c.siteId === siteId));
 export const getCourseById = (courseId: string): Promise<Course | undefined> => mockApi(courses.find(c => c.id === courseId));
+export const createCourse = (siteId: string, courseData: Omit<Course, 'id' | 'siteId'>): Promise<Course> => {
+    const newCourse: Course = {
+        ...courseData,
+        id: `crs_${Date.now()}`,
+        siteId: siteId,
+    };
+    courses.push(newCourse);
+    return mockApi(newCourse);
+};
 
 // Modules and Lessons
 export const getModulesForCourse = (courseId: string): Promise<Module[]> => mockApi(modules.filter(m => m.courseId === courseId));

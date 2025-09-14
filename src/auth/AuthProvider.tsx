@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import type { Role } from '@/types';
-import type { Scope } from '@/types/navigation';
+// FIX: Consolidate type imports and use central Scope definition.
+import type { Role, Scope } from '@/types';
 
 interface User {
   id: string;
