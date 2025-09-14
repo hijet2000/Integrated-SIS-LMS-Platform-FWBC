@@ -52,9 +52,10 @@ const Logs: React.FC = () => {
         enabled: canRead,
     });
 
+    // FIX: Explicitly type the Map to ensure proper type inference.
     const teacherMap = useMemo(() => {
         if (!teachers) return new Map<string, string>();
-        return new Map(teachers.map(t => [t.id, t.name]));
+        return new Map<string, string>(teachers.map(t => [t.id, t.name]));
     }, [teachers]);
 
     const filteredLogs = useMemo(() => {

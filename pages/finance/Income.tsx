@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -32,6 +33,8 @@ const IncomeHeadsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = (
     const addMutation = useMutation({ mutationFn: (item: any) => incomeHeadApi.add(item), ...mutationOptions });
     const updateMutation = useMutation({ mutationFn: (item: IncomeHead) => incomeHeadApi.update(item.id, item), ...mutationOptions });
     const deleteMutation = useMutation({ mutationFn: (id: string) => incomeHeadApi.delete(id), ...mutationOptions });
+    
+    const isMutating = addMutation.isPending || updateMutation.isPending;
 
     const handleSave = (itemData: any) => {
         selected ? updateMutation.mutate({ ...selected, ...itemData }) : addMutation.mutate(itemData);
@@ -43,11 +46,19 @@ const IncomeHeadsTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = (
     return (
         <div>
             {can('school:write') && <Button className="mb-4" onClick={() => { setSelected(null); setIsModalOpen(true); }}>Add Income Head</Button>}
-            <table className="min-w-full divide-y">
-                <tbody>
+            <table className="min-w-full divide-y dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase">Description</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y dark:divide-gray-700">
                     {items?.map(item => (
                         <tr key={item.id}>
-                            <td className="px-6 py-4 font-medium">{item.name}</td>
+                            <td className="px-6 py-4">{item.name}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500">{item.description}</td>
                             <td className="px-6 py-4 text-right space-x-2">
                                 {can('school:write') && <Button size="sm" variant="secondary" onClick={() => { setSelected(item); setIsModalOpen(true); }}>Edit</Button>}
                                 {can('school:write') && <Button size="sm" variant="danger" onClick={() => window.confirm('Are you sure?') && deleteMutation.mutate(item.id)}>Delete</Button>}

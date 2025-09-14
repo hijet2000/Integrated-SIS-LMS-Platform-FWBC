@@ -17,13 +17,13 @@ const Grades = React.lazy(() => import('@/pages/sis/Grades'));
 const Attendance = React.lazy(() => import('@/pages/sis/Attendance'));
 const AttendanceRecords = React.lazy(() => import('@/pages/sis/AttendanceRecords'));
 // FIX: Import the new ClassesAndSections component instead of the generic Academics one for this route.
-const ClassesAndSections = React.lazy(() => import('@/pages/academics/ClassesAndSections'));
-const Subjects = React.lazy(() => import('@/pages/academics/Subjects'));
-const SubjectGroup = React.lazy(() => import('@/pages/academics/SubjectGroup'));
-const AssignTeacher = React.lazy(() => import('@/pages/academics/AssignTeacher'));
-const PromoteStudents = React.lazy(() => import('@/pages/academics/PromoteStudents'));
-const ClassTimetable = React.lazy(() => import('@/pages/academics/ClassTimetable'));
-const TeachersTimetable = React.lazy(() => import('@/pages/academics/TeachersTimetable'));
+const ClassesAndSections = React.lazy(() => import('@/academics/ClassesAndSections'));
+const Subjects = React.lazy(() => import('@/academics/Subjects'));
+const SubjectGroup = React.lazy(() => import('@/academics/SubjectGroup'));
+const AssignTeacher = React.lazy(() => import('@/academics/AssignTeacher'));
+const PromoteStudents = React.lazy(() => import('@/academics/PromoteStudents'));
+const ClassTimetable = React.lazy(() => import('@/academics/ClassTimetable'));
+const TeachersTimetable = React.lazy(() => import('@/academics/TeachersTimetable'));
 
 // Student Management
 const StudentAdmission = React.lazy(() => import('@/pages/student/StudentAdmission'));

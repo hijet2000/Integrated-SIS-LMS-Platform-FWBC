@@ -22,12 +22,14 @@ const mockClassrooms: Classroom[] = [
     { id: 'cls_3', siteId: 'site_123', name: 'Grade 5', programId: 'prog_ms', capacity: 25, tutorId: 'teacher_3' },
 ];
 
-const mockStudents: Student[] = [
+const initialMockStudents: Student[] = [
     { id: 'std_1', siteId: 'site_123', firstName: 'John', lastName: 'Doe', admissionNo: 'ADM1001', rollNo: '10A-01', dob: '2008-05-10', gender: 'Male', email: 'john.doe@example.com', phone: '123-456-7890', address: { street: '123 Main St', city: 'Anytown', state: 'CA', zip: '12345' }, classroomId: 'cls_1', status: 'ENROLLED', photoUrl: 'https://i.pravatar.cc/150?u=std_1', health: { allergies: 'Peanuts', medications: '', conditions: '', notes: '' }, discipline: [] },
     { id: 'std_2', siteId: 'site_123', firstName: 'Jane', lastName: 'Smith', admissionNo: 'ADM1002', rollNo: '10A-02', dob: '2008-06-15', gender: 'Female', email: 'jane.smith@example.com', phone: '123-456-7891', address: { street: '456 Oak Ave', city: 'Anytown', state: 'CA', zip: '12345' }, classroomId: 'cls_1', status: 'ENROLLED', photoUrl: 'https://i.pravatar.cc/150?u=std_2', health: { allergies: '', medications: 'Inhaler', conditions: 'Asthma', notes: '' }, discipline: [] },
     { id: 'std_3', siteId: 'site_123', firstName: 'Peter', lastName: 'Jones', admissionNo: 'ADM1003', rollNo: '05-01', dob: '2013-02-20', gender: 'Male', email: 'peter.jones@example.com', phone: '123-456-7892', address: { street: '789 Pine Ln', city: 'Anytown', state: 'CA', zip: '12345' }, classroomId: 'cls_3', status: 'ENROLLED', photoUrl: 'https://i.pravatar.cc/150?u=std_3', health: { allergies: '', medications: '', conditions: '', notes: '' }, discipline: [] },
     { id: 'std_4', siteId: 'site_123', firstName: 'Mary', lastName: 'Williams', admissionNo: 'ADM1004', rollNo: '10B-01', dob: '2008-03-12', gender: 'Female', email: 'mary.w@example.com', phone: '123-456-7893', address: { street: '321 Elm St', city: 'Anytown', state: 'CA', zip: '12345' }, classroomId: 'cls_2', status: 'GRADUATED', photoUrl: null, health: { allergies: '', medications: '', conditions: '', notes: '' }, discipline: [] },
 ];
+
+let mockStudents = [...initialMockStudents];
 
 const mockGuardians: Guardian[] = [
     { id: 'grd_1', siteId: 'site_123', name: 'Robert Doe', email: 'robert.doe@example.com', phone: '234-567-8901', occupation: 'Engineer' },
@@ -78,10 +80,39 @@ export const updateStudentHealthInfo = (studentId: string, healthInfo: any): Pro
 export const addDisciplineRecord = (studentId: string, record: any): Promise<Student> => mockApi(mockStudents[0]);
 export const updateDisciplineRecord = (studentId: string, recordId: string, updates: any): Promise<Student> => mockApi(mockStudents[0]);
 export const deleteDisciplineRecord = (studentId: string, recordId: string): Promise<Student> => mockApi(mockStudents[0]);
-export const updateStudent = (studentId: string, updates: Partial<Student>): Promise<Student> => mockApi({ ...mockStudents.find(s=>s.id === studentId)!, ...updates });
+export const updateStudent = (studentId: string, updates: Partial<Student>): Promise<Student> => {
+    const index = mockStudents.findIndex(s => s.id === studentId);
+    if (index > -1) {
+        mockStudents[index] = { ...mockStudents[index], ...updates };
+        return mockApi({ ...mockStudents[index] });
+    }
+    return Promise.reject(new Error('Student not found'));
+};
 export const getAttendanceForStudent = (studentId: string): Promise<Attendance[]> => mockApi(mockAttendance.filter(a => a.studentId === studentId));
-export const deleteStudent = (studentId: string): Promise<{ success: boolean }> => mockApi({ success: true });
-export const bulkDeleteStudents = (studentIds: string[]): Promise<{ success: boolean }> => mockApi({ success: true });
+export const deleteStudent = (studentId: string): Promise<{ success: boolean }> => {
+    const initialLength = mockStudents.length;
+    mockStudents = mockStudents.filter(s => s.id !== studentId);
+    if (mockStudents.length < initialLength) {
+        return mockApi({ success: true });
+    }
+    return Promise.reject(new Error('Student not found'));
+};
+
+export const bulkDeleteStudents = (studentIds: string[]): Promise<{ success: boolean }> => {
+    mockStudents = mockStudents.filter(s => !studentIds.includes(s.id));
+    return mockApi({ success: true });
+};
+
+export const bulkPromoteStudents = (studentIds: string[], classroomId: string): Promise<{ success: boolean }> => {
+    mockStudents = mockStudents.map(student => {
+        if (studentIds.includes(student.id)) {
+            return { ...student, classroomId };
+        }
+        return student;
+    });
+    return mockApi({ success: true });
+};
+
 export const recordPayment = (invoiceId: string, amount: number, method: string): Promise<{ success: boolean }> => mockApi({ success: true });
 export const saveAttendance = (records: any[]): Promise<{ success: boolean }> => mockApi({ success: true });
 export const getAttendanceForDateRange = (classroomId: string, startDate: string, endDate: string): Promise<Attendance[]> => mockApi(mockAttendance);

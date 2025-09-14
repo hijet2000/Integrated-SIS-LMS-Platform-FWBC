@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -155,8 +156,10 @@ const FeeMastersTab: React.FC<{ siteId: string, can: (a: any) => boolean }> = ({
     const { data: feeGroups = [] } = useQuery<FeeGroup[], Error>({ queryKey: ['feeGroups', siteId], queryFn: () => feeGroupApi.get(siteId) });
     const { data: classrooms = [] } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId) });
 
-    const feeGroupMap = useMemo(() => new Map(feeGroups.map(fg => [fg.id, fg.name])), [feeGroups]);
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const feeGroupMap = useMemo(() => new Map<string, string>(feeGroups.map(fg => [fg.id, fg.name])), [feeGroups]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
 
     const mutationOptions = { onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['feeMasters', siteId] }); setIsModalOpen(false); } };
     const addMutation = useMutation({ mutationFn: (item: any) => feeMasterApi.add(item), ...mutationOptions });

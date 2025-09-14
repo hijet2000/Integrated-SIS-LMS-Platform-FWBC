@@ -120,7 +120,8 @@ const NoticeBoard: React.FC = () => {
     
     const isLoading = l1;
 
-    const teacherMap = useMemo(() => new Map(teachers.map(t => [t.id, t.name])), [teachers]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const teacherMap = useMemo(() => new Map<string, string>(teachers.map(t => [t.id, t.name])), [teachers]);
 
     const sortedAndFilteredNotices = useMemo(() => {
         if (!notices || !user) return [];

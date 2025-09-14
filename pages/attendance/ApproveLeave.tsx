@@ -93,8 +93,10 @@ const ApproveLeave: React.FC = () => {
     const { data: students = [], isLoading: isLoadingStudents } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!), enabled: canRead });
     const { data: classrooms = [], isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!), enabled: canRead });
 
-    const studentMap = useMemo(() => new Map(students.map(s => [s.id, s])), [students]);
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const studentMap = useMemo(() => new Map<string, Student>(students.map(s => [s.id, s])), [students]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
 
     const mutationOptions = {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['studentLeaveApplications', siteId] }),

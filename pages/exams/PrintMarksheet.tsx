@@ -128,8 +128,10 @@ const PrintMarksheet: React.FC = () => {
     // Memoized data
     const selectedTemplate = useMemo(() => templates.find(t => t.id === filters.templateId), [templates, filters.templateId]);
     const selectedExamGroup = useMemo(() => examGroups.find(t => t.id === filters.examGroupId), [examGroups, filters.examGroupId]);
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
-    const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const subjectMap = useMemo(() => new Map<string, string>(subjects.map(s => [s.id, s.name])), [subjects]);
     
     const studentMarksData = useMemo(() => {
         const data = new Map<string, { marksData: any[], summary: any }>();

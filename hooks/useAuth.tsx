@@ -1,4 +1,3 @@
-
 // FIX: Create the useAuth hook and AuthProvider to provide authentication context to the application. This resolves numerous 'module not found' errors.
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import type { Role } from '@/types';
@@ -22,11 +21,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>({
-      id: 'user_super_admin',
-      name: 'Super Admin',
-      email: 'admin@faitedu.com',
-      role: 'super_admin',
-      scopes: ['school:admin', 'school:read', 'school:write']
+      id: 'teacher_1',
+      name: 'Alice Johnson',
+      email: 'alice.j@school.com',
+      role: 'teacher',
+      scopes: ['school:read', 'school:write']
   });
 
   const login = (userData: User) => {

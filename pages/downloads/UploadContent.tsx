@@ -99,8 +99,10 @@ const UploadContent: React.FC = () => {
     const { data: classrooms = [], isLoading: l2 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!), enabled: canRead });
     const { data: subjects = [], isLoading: l3 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!), enabled: canRead });
 
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
-    const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const subjectMap = useMemo(() => new Map<string, string>(subjects.map(s => [s.id, s.name])), [subjects]);
 
     const mutationOptions = {
         onSuccess: () => {

@@ -76,7 +76,8 @@ const StudentCertificate: React.FC = () => {
     const { data: students = [] } = useQuery<Student[], Error>({ queryKey: ['students', siteId], queryFn: () => getStudents(siteId!) });
     const { data: classrooms = [] } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
     
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
 
     const issueMutation = useMutation<IssuedCertificate, Error, Omit<IssuedCertificate, 'id'|'siteId'>>({
         mutationFn: (data) => issuedCertificateApi.add(data),

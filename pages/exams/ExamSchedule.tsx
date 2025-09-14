@@ -136,10 +136,14 @@ const ExamSchedulePage: React.FC = () => {
     const { data: teachers = [] } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!), enabled: canRead });
     
     // Memoized maps for display
-    const examGroupMap = useMemo(() => new Map(examGroups.map(g => [g.id, g.name])), [examGroups]);
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
-    const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
-    const teacherMap = useMemo(() => new Map(teachers.map(t => [t.id, t.name])), [teachers]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const examGroupMap = useMemo(() => new Map<string, string>(examGroups.map(g => [g.id, g.name])), [examGroups]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const subjectMap = useMemo(() => new Map<string, string>(subjects.map(s => [s.id, s.name])), [subjects]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const teacherMap = useMemo(() => new Map<string, string>(teachers.map(t => [t.id, t.name])), [teachers]);
 
     // Mutations
     const mutationOptions = {

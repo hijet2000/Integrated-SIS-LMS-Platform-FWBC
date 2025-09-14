@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
@@ -8,10 +7,9 @@ import Spinner from '@/components/ui/Spinner';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorState from '@/components/ui/ErrorState';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-// FIX: Corrected import path for sisApi
-import { getStudents, getClassrooms, getGuardians, getStudentGuardians, deleteStudent, bulkDeleteStudents } from '@/services/sisApi';
+import Modal from '@/components/ui/Modal';
+import { getStudents, getClassrooms, getGuardians, getStudentGuardians, deleteStudent, bulkDeleteStudents, bulkPromoteStudents } from '@/services/sisApi';
 import { useCan } from '@/hooks/useCan';
-// FIX: Corrected import path for domain types.
 import type { Student, Classroom, Guardian, StudentGuardian } from '@/types';
 
 type GuardianInfo = { name: string, phone: string | null };
@@ -121,12 +119,11 @@ const Students: React.FC = () => {
     
     const [filters, setFilters] = useState({ classroomId: 'all', keyword: '' });
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+    const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
+    const [promoteToClassId, setPromoteToClassId] = useState('');
 
-    // FIX: The useCan hook expects a single scope string. Mapped 'read' action to 'school:read' scope.
     const canReadStudents = can('school:read');
-    // FIX: The useCan hook expects a single scope string. Mapped 'update' action to 'school:write' scope.
     const canUpdate = can('school:write');
-    // FIX: The useCan hook expects a single scope string. Mapped 'delete' action to 'school:write' scope.
     const canDelete = can('school:write');
 
     const { data: students, isLoading: isLoadingStudents, isError, error } = useQuery<Student[], Error>({
@@ -169,6 +166,19 @@ const Students: React.FC = () => {
         }
     });
 
+    const promoteMutation = useMutation<unknown, Error, { studentIds: string[], classroomId: string }>({
+        mutationFn: ({ studentIds, classroomId }) => bulkPromoteStudents(studentIds, classroomId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['students', siteId] });
+            alert(`${selectedStudentIds.length} students promoted successfully.`);
+            setSelectedStudentIds([]);
+            setIsPromoteModalOpen(false);
+        },
+        onError: (error: Error) => {
+            alert(`Failed to promote students: ${error.message}`);
+        }
+    });
+
     const handleDeleteStudent = (studentId: string) => {
         if (window.confirm('Are you sure you want to permanently delete this student? This action cannot be undone.')) {
             deleteMutation.mutate(studentId);
@@ -181,10 +191,21 @@ const Students: React.FC = () => {
         }
     };
 
+    const handlePromoteStudents = () => {
+        if (!promoteToClassId) {
+            alert('Please select a class to promote students to.');
+            return;
+        }
+        const targetClassName = classroomMap.get(promoteToClassId) || 'the selected class';
+        if (window.confirm(`Are you sure you want to promote ${selectedStudentIds.length} students to ${targetClassName}?`)) {
+            promoteMutation.mutate({ studentIds: selectedStudentIds, classroomId: promoteToClassId });
+        }
+    };
+
     // Memoized maps for performance
-    const classroomMap = useMemo(() => classrooms ? new Map<string, string>(classrooms.map(c => [c.id, c.name])) : new Map<string, string>(), [classrooms]);
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms?.map(c => [c.id, c.name]) || []), [classrooms]);
     
-    const studentGuardianMap = useMemo(() => {
+    const studentGuardianMap = useMemo<Map<string, GuardianInfo>>(() => {
         const map = new Map<string, GuardianInfo>();
         if (!guardians || !studentGuardians) return map;
 
@@ -256,7 +277,7 @@ const Students: React.FC = () => {
                         <span className="text-sm font-semibold">{selectedStudentIds.length} students selected</span>
                         <div className="space-x-2">
                              <Button variant="secondary" size="sm" onClick={() => alert('Bulk print IDs...')}>Print ID Cards</Button>
-                             <Button variant="secondary" size="sm" onClick={() => alert('Bulk promote...')}>Promote</Button>
+                             <Button variant="secondary" size="sm" onClick={() => { setPromoteToClassId(''); setIsPromoteModalOpen(true); }}>Promote Selected</Button>
                              {canDelete && (
                                 <Button
                                     variant="danger"
@@ -290,6 +311,41 @@ const Students: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
+
+            <Modal
+                isOpen={isPromoteModalOpen}
+                onClose={() => setIsPromoteModalOpen(false)}
+                title={`Promote ${selectedStudentIds.length} Students`}
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setIsPromoteModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handlePromoteStudents} isLoading={promoteMutation.isPending} className="ml-2">
+                            Promote
+                        </Button>
+                    </>
+                }
+            >
+                <div>
+                    <label htmlFor="promoteToClassId" className="block text-sm font-medium">
+                        Promote to Class
+                    </label>
+                    <select
+                        id="promoteToClassId"
+                        name="promoteToClassId"
+                        value={promoteToClassId}
+                        onChange={e => setPromoteToClassId(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm dark:bg-gray-800 dark:border-gray-600"
+                    >
+                        <option value="">Select a class...</option>
+                        {classrooms?.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                    <p className="mt-2 text-sm text-gray-500">
+                        Selected students will be moved to the chosen class.
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };

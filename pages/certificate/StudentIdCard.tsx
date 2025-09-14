@@ -90,7 +90,8 @@ const StudentIdCard: React.FC = () => {
     });
 
     const selectedTemplate = useMemo(() => templates.find(t => t.id === filters.templateId), [templates, filters.templateId]);
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
     
     const handleGenerate = () => {
         if (!selectedTemplate || students.length === 0 || !user) return;

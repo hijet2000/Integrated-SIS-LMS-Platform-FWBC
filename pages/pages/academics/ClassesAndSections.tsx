@@ -1,10 +1,15 @@
-
 import React from 'react';
 import Placeholder from '@/components/ui/Placeholder';
 
-// This file seems to be a duplicate/misplaced. The correct component is at /pages/academics/ClassesAndSections.tsx
-const MisplacedClassesAndSections: React.FC = () => {
-  return <Placeholder title="Classes & Sections (Misplaced)" />;
+/**
+ * @deprecated This component is a misplaced placeholder and should be deleted.
+ * The correct component is located at /academics/ClassesAndSections.tsx
+ */
+const DeprecatedPlaceholderClassesAndSections: React.FC = () => {
+  return <Placeholder 
+    title="DEPRECATED COMPONENT" 
+    subtitle="This file is a misplaced placeholder and should be deleted. The correct component is located at /academics/ClassesAndSections.tsx" 
+  />;
 };
 
-export default MisplacedClassesAndSections;
+export default DeprecatedPlaceholderClassesAndSections;

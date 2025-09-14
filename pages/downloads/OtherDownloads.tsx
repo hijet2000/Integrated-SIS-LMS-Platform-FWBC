@@ -67,7 +67,8 @@ const OtherDownloads: React.FC = () => {
     const { data: content = [], isLoading: l1 } = useQuery<Content[], Error>({ queryKey: ['content', siteId], queryFn: () => contentApi.get(siteId!), enabled: canRead });
     const { data: teachers = [], isLoading: l2 } = useQuery<Teacher[], Error>({ queryKey: ['teachers', siteId], queryFn: () => getTeachers(siteId!), enabled: canRead });
 
-    const teacherMap = useMemo(() => new Map(teachers.map(t => [t.id, t.name])), [teachers]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const teacherMap = useMemo(() => new Map<string, string>(teachers.map(t => [t.id, t.name])), [teachers]);
 
     const filteredContent = useMemo(() => {
         const lowercasedTerm = filters.searchTerm.toLowerCase();

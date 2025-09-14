@@ -58,11 +58,31 @@ const Fees: React.FC = () => {
     });
 
     const paymentMutation = useMutation({
-        mutationFn: ({ invoice, amount }: { invoice: FeeInvoice, amount: number }) => recordPayment(invoice.id, amount, paymentDetails.method),
+        mutationFn: (details: { amountToPay: number; paymentMethod: string; unpaidInvoices: FeeInvoice[] }) => {
+            const { amountToPay, paymentMethod, unpaidInvoices } = details;
+            let remainingAmount = amountToPay;
+            const paymentPromises: Promise<{ success: boolean }>[] = [];
+
+            for (const invoice of unpaidInvoices) {
+                if (remainingAmount <= 0) break;
+                const dueOnInvoice = invoice.amount - invoice.paidAmount;
+                const amountForInvoice = Math.min(remainingAmount, dueOnInvoice);
+                
+                paymentPromises.push(recordPayment(invoice.id, amountForInvoice, paymentMethod));
+                remainingAmount -= amountForInvoice;
+            }
+
+            if (remainingAmount > 0 && unpaidInvoices.length === 0) {
+                return Promise.reject(new Error('No outstanding balance to pay against.'));
+            }
+            
+            return Promise.all(paymentPromises);
+        },
         onSuccess: () => {
             alert('Payment recorded successfully! A receipt has been generated.');
             queryClient.invalidateQueries({ queryKey: ['studentInvoices', selectedStudent?.id] });
             setIsModalOpen(false);
+            setPaymentDetails({ amount: '', method: 'Cash', notes: '' });
         },
         onError: (error: Error) => alert(`Payment failed: ${error.message}`),
     });
@@ -77,7 +97,8 @@ const Fees: React.FC = () => {
         ).slice(0, 5);
     }, [searchKeyword, students]);
 
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
 
     const { totalDue, totalPaid, totalBalance } = useMemo(() => {
         if (!studentInvoices) return { totalDue: 0, totalPaid: 0, totalBalance: 0 };
@@ -105,22 +126,14 @@ const Fees: React.FC = () => {
             alert('Please enter a valid amount.');
             return;
         }
+        
+        const unpaidInvoices = studentInvoices?.filter(inv => inv.status !== 'PAID' && inv.status !== 'CANCELLED').sort((a,b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) || [];
 
-        let remainingAmount = amountToPay;
-        const unpaidInvoices = studentInvoices?.filter(inv => inv.status !== 'PAID').sort((a,b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) || [];
-
-        for (const invoice of unpaidInvoices) {
-            if (remainingAmount <= 0) break;
-            const dueOnInvoice = invoice.amount - invoice.paidAmount;
-            const amountToPayForInvoice = Math.min(remainingAmount, dueOnInvoice);
-            
-            paymentMutation.mutate({ invoice, amount: amountToPayForInvoice });
-            remainingAmount -= amountToPayForInvoice;
-        }
-
-        if(remainingAmount > 0 && unpaidInvoices.length === 0) {
-             alert('No outstanding balance to pay against.');
-        }
+        paymentMutation.mutate({
+            amountToPay,
+            paymentMethod: paymentDetails.method,
+            unpaidInvoices,
+        });
     };
     
     return (

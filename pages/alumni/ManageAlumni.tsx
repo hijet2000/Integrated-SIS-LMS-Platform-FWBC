@@ -75,8 +75,10 @@ const ManageAlumni: React.FC = () => {
     const { data: alumni = [], isLoading: l1 } = useQuery<Alumni[], Error>({ queryKey: ['alumni', siteId], queryFn: () => alumniApi.get(siteId!) });
     const { data: classrooms = [], isLoading: l2 } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
 
-    const classroomMap = useMemo(() => new Map(classrooms.map(c => [c.id, c.name])), [classrooms]);
-    const uniqueYears = useMemo(() => [...new Set(alumni.map(a => a.graduationYear))].sort((a, b) => b - a), [alumni]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
+    // FIX: Explicitly type the returned array to ensure proper type inference for sorting and rendering.
+    const uniqueYears = useMemo<number[]>(() => [...new Set(alumni.map(a => a.graduationYear))].sort((a, b) => b - a), [alumni]);
 
     const mutationOptions = { onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alumni', siteId] }); setIsModalOpen(false); } };
     const addMutation = useMutation({ mutationFn: (item: any) => alumniApi.add(item), ...mutationOptions });

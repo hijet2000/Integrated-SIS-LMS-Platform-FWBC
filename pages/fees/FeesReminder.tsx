@@ -61,6 +61,9 @@ const SendReminderTab: React.FC = () => {
     const { data: invoices = [], isLoading: isLoadingInvoices } = useQuery<FeeInvoice[], Error>({ queryKey: ['invoices', siteId], queryFn: () => getInvoices(siteId!) });
     const { data: classrooms = [], isLoading: isLoadingClassrooms } = useQuery<Classroom[], Error>({ queryKey: ['classrooms', siteId], queryFn: () => getClassrooms(siteId!) });
 
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const classroomMap = useMemo(() => new Map<string, string>(classrooms.map(c => [c.id, c.name])), [classrooms]);
+
     const studentsWithDues = useMemo<StudentWithDue[]>(() => {
         const studentDues = new Map<string, number>();
         invoices.forEach(inv => {
@@ -116,7 +119,7 @@ const SendReminderTab: React.FC = () => {
                                         <tr key={s.id}>
                                             <td className="p-2"><input type="checkbox" checked={selectedStudentIds.includes(s.id)} onChange={() => setSelectedStudentIds(p => p.includes(s.id) ? p.filter(id => id !== s.id) : [...p, s.id])}/></td>
                                             <td className="p-2">{s.firstName} {s.lastName}</td>
-                                            <td className="p-2">{classrooms.find(c=>c.id === s.classroomId)?.name}</td>
+                                            <td className="p-2">{classroomMap.get(s.classroomId)}</td>
                                             <td className="p-2 text-right font-semibold">${s.dueAmount.toFixed(2)}</td>
                                         </tr>
                                     ))}

@@ -52,7 +52,8 @@ const Syllabus: React.FC = () => {
     const { data: content = [], isLoading: l1 } = useQuery<Content[], Error>({ queryKey: ['content', siteId], queryFn: () => contentApi.get(siteId!), enabled: canRead });
     const { data: subjects = [], isLoading: l2 } = useQuery<Subject[], Error>({ queryKey: ['subjects', siteId], queryFn: () => getSubjects(siteId!), enabled: canRead });
 
-    const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s.name])), [subjects]);
+    // FIX: Explicitly type the Map to ensure proper type inference.
+    const subjectMap = useMemo(() => new Map<string, string>(subjects.map(s => [s.id, s.name])), [subjects]);
 
     const syllabusContent = useMemo(() => {
         return content.filter(c => c.category === 'Syllabus');
