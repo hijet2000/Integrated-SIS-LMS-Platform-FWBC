@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/hooks/useAuth';
@@ -24,7 +24,7 @@ const App: React.FC = () => {
               <Route path="/verify/:serialId" element={<VerifyCertificate />} />
 
               {/* Redirects for old/root paths */}
-              <Route path="/" element={<Navigate to="/school/site_123" replace />} />
+              <Route path="/" element={<RedirectDashboard />} />
               <Route path="/dashboard/:siteId" element={<RedirectDashboard />} />
 
               {/* Dynamically generated school routes */}

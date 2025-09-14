@@ -1,2 +1,13 @@
-// This file is no longer needed and can be deleted.
-// Vite is configured to directly use `vite.config.ts`.
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { URL, fileURLToPath } from 'node:url';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+});
