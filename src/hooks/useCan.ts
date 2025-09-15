@@ -1,6 +1,4 @@
-
-import { useAuth } from '@/auth/AuthProvider';
-// FIX: Import Scope from the central types file to ensure consistency.
+import { useAuth } from '@/hooks/useAuth';
 import type { Scope } from '@/types';
 
 export const useCan = () => {

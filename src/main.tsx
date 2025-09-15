@@ -4,15 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/hooks/useAuth';
-import App from '@/App';
-import '@/styles.css';
+import App from './App';
+import './index.css';
 
-const container = document.getElementById('root');
-if (!container) {
+const rootElement = document.getElementById('root');
+if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-const root = createRoot(container);
+const root = createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>

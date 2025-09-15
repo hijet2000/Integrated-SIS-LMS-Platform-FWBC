@@ -1,7 +1,6 @@
 import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import RequireScope from '@/auth/RequireScope';
-// FIX: Import Scope from the central types file.
 import type { Scope } from '@/types';
 
 // Dashboards
@@ -224,8 +223,8 @@ const routes: AppRoute[] = [
     { path: '/school/:siteId/library/add-member', element: <AddMember />, scope: 'library:write' },
     { path: '/school/:siteId/library/digital', element: <DigitalLibrary />, scope: 'library:read' },
     { path: '/school/:siteId/library/viewer/:assetId', element: <DigitalViewer />, scope: 'library:read' },
-    { path: '/school/:siteId/library/catchup', element: <CatchUpClasses />, scope: 'library:read' },
-    { path: '/school/:siteId/library/catchup/:catchupId', element: <CatchUpViewer />, scope: 'library:read' },
+    { path: '/school/:siteId/library/catchup', element: <CatchUpClasses />, scope: 'school:read' },
+    { path: '/school/:siteId/library/catchup/:catchupId', element: <CatchUpViewer />, scope: 'school:read' },
 
     // Inventory
     { path: '/school/:siteId/inventory/add-stock', element: <AddStock />, scope: 'school:write' },

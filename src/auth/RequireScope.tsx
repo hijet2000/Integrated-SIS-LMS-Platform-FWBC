@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useCan } from '@/hooks/useCan';
-import { useAuth } from '@/auth/AuthProvider';
-// FIX: Import Scope from the central types file to ensure consistency.
+import { useAuth } from '@/hooks/useAuth';
 import type { Scope } from '@/types';
 import ErrorState from '@/components/ui/ErrorState';
 
