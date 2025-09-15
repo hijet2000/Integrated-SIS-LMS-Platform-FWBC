@@ -18,7 +18,7 @@ const App: React.FC = () => {
         <Route path="/verify/:serialId" element={<VerifyCertificate />} />
 
         {/* Redirects for old/root paths */}
-        <Route path="/" element={<Navigate to="/school/site_123" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard/site_123" replace />} />
         <Route path="/dashboard/:siteId" element={<RedirectDashboard />} />
 
         {/* Dynamically generated school routes */}
